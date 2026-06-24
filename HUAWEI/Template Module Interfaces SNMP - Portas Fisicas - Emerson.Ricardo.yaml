@@ -21,9 +21,39 @@ zabbix_export:
         conditions:
         - macro: '{#IFTYPE}'
           value: '6'
+        - macro: '{#IFADMINSTATUS}'
+          value: '{$NET.IF.IFADMINSTATUS.MATCHES}'
+          operator: MATCHES_REGEX
+        - macro: '{#IFADMINSTATUS}'
+          value: '{$NET.IF.IFADMINSTATUS.NOT_MATCHES}'
+          operator: NOT_MATCHES_REGEX
+        - macro: '{#IFOPERSTATUS}'
+          value: '{$NET.IF.IFOPERSTATUS.MATCHES}'
+          operator: MATCHES_REGEX
+        - macro: '{#IFOPERSTATUS}'
+          value: '{$NET.IF.IFOPERSTATUS.NOT_MATCHES}'
+          operator: NOT_MATCHES_REGEX
+        - macro: '{#IFALIAS}'
+          value: '{$NET.IF.IFALIAS.MATCHES}'
+          operator: MATCHES_REGEX
+        - macro: '{#IFALIAS}'
+          value: '{$NET.IF.IFALIAS.NOT_MATCHES}'
+          operator: NOT_MATCHES_REGEX
+        - macro: '{#IFNAME}'
+          value: '{$NET.IF.IFNAME.MATCHES}'
+          operator: MATCHES_REGEX
+        - macro: '{#IFNAME}'
+          value: '{$NET.IF.IFNAME.NOT_MATCHES}'
+          operator: NOT_MATCHES_REGEX
+        - macro: '{#IFDESCR}'
+          value: '{$NET.IF.IFDESCR.MATCHES}'
+          operator: MATCHES_REGEX
+        - macro: '{#IFDESCR}'
+          value: '{$NET.IF.IFDESCR.NOT_MATCHES}'
+          operator: NOT_MATCHES_REGEX
       lifetime: 30d
       enabled_lifetime_type: DISABLE_NEVER
-      description: Discovering interfaces from IF-MIB.
+      description: 'Discovering interfaces from IF-MIB. Filtro base fixo em IFTYPE=6 (ethernetCsmacd, nao alterar) + condicoes extras configuraveis via macro ({$NET.IF.IFNAME.MATCHES/NOT_MATCHES}, {$NET.IF.IFALIAS...}, {$NET.IF.IFDESCR...}, {$NET.IF.IFOPERSTATUS...}, {$NET.IF.IFADMINSTATUS...}) para ajuste fino por host sem precisar reimportar o template. Valores padrao das macros nao restringem nada (mantem o comportamento atual).'
       item_prototypes:
       - uuid: 33d263e63a664e31af3a5797cadb834b
         name: 'Interface {#IFNAME}({#IFALIAS}): Inbound packets discarded'
@@ -420,7 +450,10 @@ zabbix_export:
       description: 'Descobre módulos ópticos Huawei pela HUAWEI-ENTITY-EXTENT-MIB e coleta RX/TX Power com os limites reais do transceiver.
 
 
-        Filtro ajustado para descobrir somente interfaces físicas ópticas e ignorar Board/Card/POWER/PWR/FAN, evitando erro de preprocessing em valores string.'
+        Filtro ajustado para descobrir somente interfaces físicas ópticas e ignorar Board/Card/POWER/PWR/FAN, evitando erro de preprocessing em valores string.
+
+
+        NOTA: entPhysicalIndex (usado por esta regra) NAO coincide com ifIndex (IF-MIB) neste equipamento - validado via snmpwalk em 24/06/2026. Por isso a supressao de falsos positivos de "sem sinal" usa a margem dinamica {$SFP.RX.NOSIGNAL_MARGIN} relativa ao threshold do proprio SFP, em vez de correlacionar com o status operacional da interface.'
       item_prototypes:
       - uuid: 0d31b92beed24c06ad27a4d2997af723
         name: 'Optical Module Interface {#IFNAME}: RxPower'
@@ -833,10 +866,10 @@ zabbix_export:
         evaltype: AND
         conditions:
         - macro: '{#IFNAME}'
-          value: ^(XGigabitEthernet|GigabitEthernet|Ethernet|[0-9]+GE|[0-9]+GigabitEthernet)
+          value: '{$NET.IF.IFNAME.OPTICAL.MATCHES}'
           operator: MATCHES_REGEX
         - macro: '{#IFNAME}'
-          value: ^(Board|Card|POWER|PWR|FAN|NULL|Slot)
+          value: '{$NET.IF.IFNAME.OPTICAL.NOT_MATCHES}'
           operator: NOT_MATCHES_REGEX
     macros:
     - macro: '{$IF.ERRORS.WARN}'
@@ -894,6 +927,12 @@ zabbix_export:
     - macro: '{$SFP.RX.NOSIGNAL_MARGIN}'
       value: '10'
       description: 'Margem em dB abaixo do proprio threshold baixo do transceiver (informado pelo SFP) para considerar a porta sem luz recebida (fibra desconectada/porta nao utilizada/ponta remota down), em vez de degradacao real de sinal. Cada SFP tem seu limite de trabalho proprio; esta margem e relativa a ele, nao um valor fixo.'
+    - macro: '{$NET.IF.IFNAME.OPTICAL.MATCHES}'
+      value: ^(XGigabitEthernet|GigabitEthernet|Ethernet|[0-9]+GE|[0-9]+GigabitEthernet)
+      description: 'Regex de nomes de interface que a discovery optica deve aceitar. Ajustavel por host sem reimportar o template.'
+    - macro: '{$NET.IF.IFNAME.OPTICAL.NOT_MATCHES}'
+      value: ^(Board|Card|POWER|PWR|FAN|NULL|Slot)
+      description: 'Regex de nomes de interface que a discovery optica deve ignorar (chassi/fonte/fan/etc). Ajustavel por host sem reimportar o template.'
     dashboards:
     - uuid: 9f09090b76344ea6bf1296901a372091
       name: Network interfaces
