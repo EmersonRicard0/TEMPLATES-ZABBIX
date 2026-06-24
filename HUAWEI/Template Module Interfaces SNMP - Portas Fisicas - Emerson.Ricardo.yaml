@@ -693,16 +693,16 @@ zabbix_export:
           - '0.001'
       trigger_prototypes:
       - uuid: 95d6a7f3280441929197876a3320c1b5
-        expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPower[{#IFNAME}])<=last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPowerLowThreshold[{#IFNAME}]) and last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPowerLowThreshold[{#IFNAME}])<-1
+        expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPower[{#IFNAME}])<=last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPowerLowThreshold[{#IFNAME}]) and last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPowerLowThreshold[{#IFNAME}])<-1 and last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPower[{#IFNAME}])>last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPowerLowThreshold[{#IFNAME}])-{$SFP.RX.NOSIGNAL_MARGIN}
         recovery_mode: RECOVERY_EXPRESSION
-        recovery_expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPower[{#IFNAME}])>last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPowerLowThreshold[{#IFNAME}])+0.5 or last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPowerLowThreshold[{#IFNAME}])>=-1
+        recovery_expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPower[{#IFNAME}])<=last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPowerLowThreshold[{#IFNAME}])-{$SFP.RX.NOSIGNAL_MARGIN} or last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPower[{#IFNAME}])>last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPowerLowThreshold[{#IFNAME}])+0.5 or last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPowerLowThreshold[{#IFNAME}])>=-1
         name: 'Sinal RX CRITICO: Interface {#IFNAME}'
         opdata: 'RX: {ITEM.LASTVALUE1} / Limite: {ITEM.LASTVALUE2}'
         priority: HIGH
         description: RX Power atingiu ou passou o limite baixo crítico informado pelo próprio transceiver.
         manual_close: 'YES'
       - uuid: 42c27b9683d34b309060e7d02c725f8e
-        expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPower[{#IFNAME}])<=last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPowerLowWarning[{#IFNAME}]) and last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPowerLowWarning[{#IFNAME}])<-1
+        expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPower[{#IFNAME}])<=last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPowerLowWarning[{#IFNAME}]) and last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPowerLowWarning[{#IFNAME}])<-1 and last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPower[{#IFNAME}])>last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPowerLowWarning[{#IFNAME}])-{$SFP.RX.NOSIGNAL_MARGIN}
         recovery_mode: RECOVERY_EXPRESSION
         recovery_expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPower[{#IFNAME}])>last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPowerLowWarning[{#IFNAME}])+0.5 or last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPowerLowWarning[{#IFNAME}])>=-1
         name: 'Sinal RX atenuado: Interface {#IFNAME}'
@@ -712,8 +712,8 @@ zabbix_export:
         manual_close: 'YES'
         dependencies:
         - name: 'Sinal RX CRITICO: Interface {#IFNAME}'
-          expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPower[{#IFNAME}])<=last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPowerLowThreshold[{#IFNAME}]) and last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPowerLowThreshold[{#IFNAME}])<-1
-          recovery_expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPower[{#IFNAME}])>last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPowerLowThreshold[{#IFNAME}])+0.5 or last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPowerLowThreshold[{#IFNAME}])>=-1
+          expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPower[{#IFNAME}])<=last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPowerLowThreshold[{#IFNAME}]) and last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPowerLowThreshold[{#IFNAME}])<-1 and last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPower[{#IFNAME}])>last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPowerLowThreshold[{#IFNAME}])-{$SFP.RX.NOSIGNAL_MARGIN}
+          recovery_expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPower[{#IFNAME}])<=last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPowerLowThreshold[{#IFNAME}])-{$SFP.RX.NOSIGNAL_MARGIN} or last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPower[{#IFNAME}])>last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPowerLowThreshold[{#IFNAME}])+0.5 or last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPowerLowThreshold[{#IFNAME}])>=-1
       - uuid: c0892787fc2b4611aa38a11b4407a1c8
         expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneTxPower[{#IFNAME}])<=last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneTxPowerLowThreshold[{#IFNAME}]) and last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneTxPowerLowThreshold[{#IFNAME}])<-1
         recovery_mode: RECOVERY_EXPRESSION
@@ -781,9 +781,9 @@ zabbix_export:
           expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneBiasCurrent[{#IFNAME}])>={$SFP.BIAS.HIGH}
           recovery_expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneBiasCurrent[{#IFNAME}])<={$SFP.BIAS.HIGH}-5
       - uuid: cf28693bda384210a607e8cbe6991c5b
-        expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneVoltage[{#IFNAME}])<{$SFP.VOLT.MIN} or last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneVoltage[{#IFNAME}])>{$SFP.VOLT.MAX}
+        expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneVoltage[{#IFNAME}])>0 and (last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneVoltage[{#IFNAME}])<{$SFP.VOLT.MIN} or last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneVoltage[{#IFNAME}])>{$SFP.VOLT.MAX})
         recovery_mode: RECOVERY_EXPRESSION
-        recovery_expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneVoltage[{#IFNAME}])>={$SFP.VOLT.MIN}+0.05 and last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneVoltage[{#IFNAME}])<={$SFP.VOLT.MAX}-0.05
+        recovery_expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneVoltage[{#IFNAME}])=0 or (last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneVoltage[{#IFNAME}])>={$SFP.VOLT.MIN}+0.05 and last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneVoltage[{#IFNAME}])<={$SFP.VOLT.MAX}-0.05)
         name: 'Voltagem fora da faixa no transceiver: Interface {#IFNAME}'
         opdata: 'Voltage: {ITEM.LASTVALUE1}'
         priority: WARNING
@@ -891,6 +891,9 @@ zabbix_export:
     - macro: '{$SFP.VOLT.MAX}'
       value: '3.5'
       description: Voltagem maxima aceitavel do transceiver optico.
+    - macro: '{$SFP.RX.NOSIGNAL_MARGIN}'
+      value: '10'
+      description: 'Margem em dB abaixo do proprio threshold baixo do transceiver (informado pelo SFP) para considerar a porta sem luz recebida (fibra desconectada/porta nao utilizada/ponta remota down), em vez de degradacao real de sinal. Cada SFP tem seu limite de trabalho proprio; esta margem e relativa a ele, nao um valor fixo.'
     dashboards:
     - uuid: 9f09090b76344ea6bf1296901a372091
       name: Network interfaces
