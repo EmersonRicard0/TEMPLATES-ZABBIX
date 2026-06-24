@@ -410,9 +410,9 @@ zabbix_export:
             host: Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo
             key: net.if.in.discards[ifInDiscards.{#SNMPINDEX}]
     - uuid: cb168ada21b840bd9ca01ac8d4df9f24
-      name: Network Optical Modules Single Lane discovery - Huawei thresholds
+      name: Network Optical Modules Single Lane discovery - Huawei thresholds numeric only
       type: SNMP_AGENT
-      snmp_oid: discovery[{#IFNAME},1.3.6.1.2.1.47.1.1.1.1.7,{#SFP_SERIAL},1.3.6.1.4.1.2011.5.25.31.1.1.3.1.4,{#SFP_VENDOR},1.3.6.1.4.1.2011.5.25.31.1.1.3.1.24,{#SFP_MODEL},1.3.6.1.4.1.2011.5.25.31.1.1.3.1.25]
+      snmp_oid: discovery[{#IFNAME},1.3.6.1.2.1.47.1.1.1.1.7,{#SFP_SERIAL},1.3.6.1.4.1.2011.5.25.31.1.1.3.1.4,{#SFP_VENDOR},1.3.6.1.4.1.2011.5.25.31.1.1.3.1.24,{#SFP_MODEL},1.3.6.1.4.1.2011.5.25.31.1.1.3.1.25,{#RX_RAW},1.3.6.1.4.1.2011.5.25.31.1.1.3.1.32,{#TX_RAW},1.3.6.1.4.1.2011.5.25.31.1.1.3.1.33]
       key: hw.optical.discovery.single.lane
       delay: 1h
       lifetime: 30d
@@ -420,7 +420,13 @@ zabbix_export:
       description: 'Descobre módulos ópticos Huawei pela HUAWEI-ENTITY-EXTENT-MIB e coleta RX/TX Power com os limites reais do transceiver.
 
 
-        Filtro ajustado para descobrir somente interfaces físicas ópticas e ignorar Board/Card/POWER/PWR/FAN, evitando erro de preprocessing em valores string.'
+        Filtro ajustado para descobrir somente interfaces físicas ópticas e ignorar Board/Card/POWER/PWR/FAN, evitando erro de preprocessing em valores string.
+
+
+        Ajuste: adicionadas macros {#RX_RAW}/{#TX_RAW} no LLD e filtro numerico para nao criar itens em portas sem DOM/DDM ou valores string.
+
+
+        Ajuste: removidos itens, triggers e gráficos de Voltage para evitar falsos positivos.'
       item_prototypes:
       - uuid: 0d31b92beed24c06ad27a4d2997af723
         name: 'Optical Module Interface {#IFNAME}: RxPower'
@@ -655,24 +661,6 @@ zabbix_export:
         tags:
         - tag: Application
           value: Network interfaces Sinal
-      - uuid: b96cc47858674ccf9d7c620adf173bc4
-        name: 'Optical Module Interface {#IFNAME}: Voltage'
-        type: SNMP_AGENT
-        snmp_oid: 1.3.6.1.4.1.2011.5.25.31.1.1.3.1.6.{#SNMPINDEX}
-        key: hwEntityOpticalLaneVoltage[{#IFNAME}]
-        delay: 5m
-        history: 10d
-        trends: 365d
-        value_type: FLOAT
-        units: V
-        description: Voltagem atual do transceiver Huawei. Valor bruto SNMP em mV.
-        tags:
-        - tag: Application
-          value: Network interfaces Sinal
-        preprocessing:
-        - type: MULTIPLIER
-          parameters:
-          - '0.001'
       - uuid: 2b58ba4b46bb45089cfd918f5a707872
         name: 'Optical Module Interface {#IFNAME}: Bias Current'
         type: SNMP_AGENT
@@ -780,15 +768,6 @@ zabbix_export:
         - name: 'Bias Current ALTO no transceiver: Interface {#IFNAME}'
           expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneBiasCurrent[{#IFNAME}])>={$SFP.BIAS.HIGH}
           recovery_expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneBiasCurrent[{#IFNAME}])<={$SFP.BIAS.HIGH}-5
-      - uuid: cf28693bda384210a607e8cbe6991c5b
-        expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneVoltage[{#IFNAME}])<{$SFP.VOLT.MIN} or last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneVoltage[{#IFNAME}])>{$SFP.VOLT.MAX}
-        recovery_mode: RECOVERY_EXPRESSION
-        recovery_expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneVoltage[{#IFNAME}])>={$SFP.VOLT.MIN}+0.05 and last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneVoltage[{#IFNAME}])<={$SFP.VOLT.MAX}-0.05
-        name: 'Voltagem fora da faixa no transceiver: Interface {#IFNAME}'
-        opdata: 'Voltage: {ITEM.LASTVALUE1}'
-        priority: WARNING
-        description: Voltagem do transceiver fora da faixa definida por macro.
-        manual_close: 'YES'
       graph_prototypes:
       - uuid: d7d9c7e3d3534e07ac0a9ef4dfc4f6f3
         name: 'Optical Module Interface {#IFNAME}: RX/TX Power and thresholds'
@@ -813,17 +792,12 @@ zabbix_export:
             host: Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo
             key: hwEntityOpticalLaneRxPowerLowThreshold[{#IFNAME}]
       - uuid: 81257a49e2c946fa88c3d64af9395f0d
-        name: 'Optical Module Interface {#IFNAME}: Temperature, Voltage and Bias'
+        name: 'Optical Module Interface {#IFNAME}: Temperature and Bias'
         graph_items:
         - color: 1A7C11
           item:
             host: Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo
             key: hwEntityOpticalLaneTemperature[{#IFNAME}]
-        - sortorder: '1'
-          color: 2774A4
-          item:
-            host: Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo
-            key: hwEntityOpticalLaneVoltage[{#IFNAME}]
         - sortorder: '2'
           color: F63100
           item:
@@ -838,6 +812,12 @@ zabbix_export:
         - macro: '{#IFNAME}'
           value: ^(Board|Card|POWER|PWR|FAN|NULL|Slot)
           operator: NOT_MATCHES_REGEX
+        - macro: '{#RX_RAW}'
+          value: ^-?[0-9]{2,}$
+          operator: MATCHES_REGEX
+        - macro: '{#TX_RAW}'
+          value: ^-?[0-9]{2,}$
+          operator: MATCHES_REGEX
     macros:
     - macro: '{$IF.ERRORS.WARN}'
       value: '2'
@@ -885,12 +865,6 @@ zabbix_export:
     - macro: '{$SFP.BIAS.HIGH}'
       value: '100'
       description: Bias current alto para transceiver optico em mA.
-    - macro: '{$SFP.VOLT.MIN}'
-      value: '3.0'
-      description: Voltagem minima aceitavel do transceiver optico.
-    - macro: '{$SFP.VOLT.MAX}'
-      value: '3.5'
-      description: Voltagem maxima aceitavel do transceiver optico.
     dashboards:
     - uuid: 9f09090b76344ea6bf1296901a372091
       name: Network interfaces
