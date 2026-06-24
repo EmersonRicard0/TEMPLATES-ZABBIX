@@ -13,8 +13,7 @@ zabbix_export:
     - uuid: 7a7381b6972a491ab6d9dcc47b268c87
       name: Network interfaces discovery portas fisicas
       type: SNMP_AGENT
-      snmp_oid: 
-        discovery[{#IFOPERSTATUS},1.3.6.1.2.1.2.2.1.8,{#IFADMINSTATUS},1.3.6.1.2.1.2.2.1.7,{#IFALIAS},1.3.6.1.2.1.31.1.1.1.18,{#IFNAME},1.3.6.1.2.1.31.1.1.1.1,{#IFDESCR},1.3.6.1.2.1.2.2.1.2,{#IFTYPE},1.3.6.1.2.1.2.2.1.3]
+      snmp_oid: discovery[{#IFOPERSTATUS},1.3.6.1.2.1.2.2.1.8,{#IFADMINSTATUS},1.3.6.1.2.1.2.2.1.7,{#IFALIAS},1.3.6.1.2.1.31.1.1.1.18,{#IFNAME},1.3.6.1.2.1.31.1.1.1.1,{#IFDESCR},1.3.6.1.2.1.2.2.1.2,{#IFTYPE},1.3.6.1.2.1.2.2.1.3]
       key: net.if.discovery.portas.fisicas
       delay: 1h
       filter:
@@ -33,8 +32,7 @@ zabbix_export:
         key: net.if.in.discards[ifInDiscards.{#SNMPINDEX}]
         delay: 3m
         history: 7d
-        description: 'MIB: IF-MIB. Descricao simplificada para evitar erro de YAML
-          no import do Zabbix.'
+        description: 'MIB: IF-MIB. Descricao simplificada para evitar erro de YAML no import do Zabbix.'
         preprocessing:
         - type: CHANGE_PER_SECOND
         tags:
@@ -46,8 +44,7 @@ zabbix_export:
         key: net.if.in.errors[ifInErrors.{#SNMPINDEX}]
         delay: 3m
         history: 7d
-        description: 'MIB: IF-MIB. Descricao simplificada para evitar erro de YAML
-          no import do Zabbix.'
+        description: 'MIB: IF-MIB. Descricao simplificada para evitar erro de YAML no import do Zabbix.'
         preprocessing:
         - type: CHANGE_PER_SECOND
         tags:
@@ -60,8 +57,7 @@ zabbix_export:
         delay: 3m
         history: 7d
         units: bps
-        description: 'MIB: IF-MIB. Descricao simplificada para evitar erro de YAML
-          no import do Zabbix.'
+        description: 'MIB: IF-MIB. Descricao simplificada para evitar erro de YAML no import do Zabbix.'
         preprocessing:
         - type: CHANGE_PER_SECOND
         - type: MULTIPLIER
@@ -76,8 +72,7 @@ zabbix_export:
         key: net.if.out.discards[ifOutDiscards.{#SNMPINDEX}]
         delay: 3m
         history: 7d
-        description: 'MIB: IF-MIB. Descricao simplificada para evitar erro de YAML
-          no import do Zabbix.'
+        description: 'MIB: IF-MIB. Descricao simplificada para evitar erro de YAML no import do Zabbix.'
         preprocessing:
         - type: CHANGE_PER_SECOND
         tags:
@@ -89,8 +84,7 @@ zabbix_export:
         key: net.if.out.errors[ifOutErrors.{#SNMPINDEX}]
         delay: 3m
         history: 7d
-        description: 'MIB: IF-MIB. Descricao simplificada para evitar erro de YAML
-          no import do Zabbix.'
+        description: 'MIB: IF-MIB. Descricao simplificada para evitar erro de YAML no import do Zabbix.'
         preprocessing:
         - type: CHANGE_PER_SECOND
         tags:
@@ -103,8 +97,7 @@ zabbix_export:
         delay: 3m
         history: 7d
         units: bps
-        description: 'MIB: IF-MIB. Descricao simplificada para evitar erro de YAML
-          no import do Zabbix.'
+        description: 'MIB: IF-MIB. Descricao simplificada para evitar erro de YAML no import do Zabbix.'
         preprocessing:
         - type: CHANGE_PER_SECOND
         - type: MULTIPLIER
@@ -121,8 +114,7 @@ zabbix_export:
         history: 7d
         trends: '0'
         units: bps
-        description: 'MIB: IF-MIB. Descricao simplificada para evitar erro de YAML
-          no import do Zabbix.'
+        description: 'MIB: IF-MIB. Descricao simplificada para evitar erro de YAML no import do Zabbix.'
         preprocessing:
         - type: MULTIPLIER
           parameters:
@@ -139,34 +131,20 @@ zabbix_export:
         key: net.if.status[ifOperStatus.{#SNMPINDEX}]
         history: 7d
         trends: '0'
-        description: 'MIB: IF-MIB. Descricao simplificada para evitar erro de YAML
-          no import do Zabbix.'
+        description: 'MIB: IF-MIB. Descricao simplificada para evitar erro de YAML no import do Zabbix.'
         valuemap:
           name: IF-MIB::ifOperStatus
         tags:
         - tag: Network Interfaces Status
         trigger_prototypes:
         - uuid: fecf113a148e4b78b7455a49c4197a07
-          expression: '{$IFCONTROL:"{#IFNAME}"}=1 and (last(/Template Module Interfaces
-            SNMP - Portas Fisicas - emerson.ricardo/net.if.status[ifOperStatus.{#SNMPINDEX}])=2
-            and (last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.status[ifOperStatus.{#SNMPINDEX}],#1)<>last(/Template
-            Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.status[ifOperStatus.{#SNMPINDEX}],#2))=1)'
+          expression: '{$IFCONTROL:"{#IFNAME}"}=1 and (last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.status[ifOperStatus.{#SNMPINDEX}])=2 and (last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.status[ifOperStatus.{#SNMPINDEX}],#1)<>last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.status[ifOperStatus.{#SNMPINDEX}],#2))=1)'
           recovery_mode: RECOVERY_EXPRESSION
-          recovery_expression: last(/Template Module Interfaces SNMP - Portas 
-            Fisicas - 
-            emerson.ricardo/net.if.status[ifOperStatus.{#SNMPINDEX}])<>2 or 
-            {$IFCONTROL:"{#IFNAME}"}=0
+          recovery_expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.status[ifOperStatus.{#SNMPINDEX}])<>2 or {$IFCONTROL:"{#IFNAME}"}=0
           name: 'Interface {#IFNAME}({#IFALIAS}): Link down'
           opdata: 'Current state: {ITEM.LASTVALUE1}'
           priority: AVERAGE
-          description: 'This trigger expression works as follows: 1. Can be triggered
-            if operations status is down. 2. {$IFCONTROL:"{#IFNAME}"}=1 - user can
-            redefine Context macro to value - 0. That marks this interface as not
-            important. No new trigger will be fired if this interface is down. 3.
-            {TEMPLATE_NAME:METRIC.diff()}=1) - trigger fires only if operational status
-            was up(1) sometime before. (So, do not fire ''ethernal off'' interfaces.)
-            WARNING: if closed manually - won''t fire again on next poll, because
-            of .diff.'
+          description: 'This trigger expression works as follows: 1. Can be triggered if operations status is down. 2. {$IFCONTROL:"{#IFNAME}"}=1 - user can redefine Context macro to value - 0. That marks this interface as not important. No new trigger will be fired if this interface is down. 3. {TEMPLATE_NAME:METRIC.diff()}=1) - trigger fires only if operational status was up(1) sometime before. (So, do not fire ''ethernal off'' interfaces.) WARNING: if closed manually - won''t fire again on next poll, because of .diff.'
       - uuid: 64e822656b07428d899655d260095301
         name: 'Interface {#IFNAME}({#IFALIAS}): Interface type'
         type: SNMP_AGENT
@@ -175,8 +153,7 @@ zabbix_export:
         delay: 1h
         history: 7d
         trends: '0'
-        description: 'MIB: IF-MIB. Descricao simplificada para evitar erro de YAML
-          no import do Zabbix.'
+        description: 'MIB: IF-MIB. Descricao simplificada para evitar erro de YAML no import do Zabbix.'
         valuemap:
           name: IF-MIB::ifType
         preprocessing:
@@ -187,25 +164,19 @@ zabbix_export:
         - tag: Network Interfaces Type
       trigger_prototypes:
       - uuid: 3dcdbeab02354b7394312280abdef78f
-        expression: 'change(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.speed[ifHighSpeed.{#SNMPINDEX}])<0
-          and last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.speed[ifHighSpeed.{#SNMPINDEX}])>0
+        expression: 'change(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.speed[ifHighSpeed.{#SNMPINDEX}])<0 and last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.speed[ifHighSpeed.{#SNMPINDEX}])>0
 
           and (
 
-          last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.type[ifType.{#SNMPINDEX}])=6
-          or
+          last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.type[ifType.{#SNMPINDEX}])=6 or
 
-          last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.type[ifType.{#SNMPINDEX}])=7
-          or
+          last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.type[ifType.{#SNMPINDEX}])=7 or
 
-          last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.type[ifType.{#SNMPINDEX}])=11
-          or
+          last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.type[ifType.{#SNMPINDEX}])=11 or
 
-          last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.type[ifType.{#SNMPINDEX}])=62
-          or
+          last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.type[ifType.{#SNMPINDEX}])=62 or
 
-          last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.type[ifType.{#SNMPINDEX}])=69
-          or
+          last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.type[ifType.{#SNMPINDEX}])=69 or
 
           last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.type[ifType.{#SNMPINDEX}])=117
 
@@ -217,69 +188,42 @@ zabbix_export:
 
           '
         recovery_mode: RECOVERY_EXPRESSION
-        recovery_expression: '(change(/Template Module Interfaces SNMP - Portas Fisicas
-          - emerson.ricardo/net.if.speed[ifHighSpeed.{#SNMPINDEX}])>0 and last(/Template
-          Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.speed[ifHighSpeed.{#SNMPINDEX}],#2)>0)
-          or
+        recovery_expression: '(change(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.speed[ifHighSpeed.{#SNMPINDEX}])>0 and last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.speed[ifHighSpeed.{#SNMPINDEX}],#2)>0) or
 
           (last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.status[ifOperStatus.{#SNMPINDEX}])=2)
 
           '
-        name: 'Interface {#IFNAME}({#IFALIAS}): Ethernet has changed to lower speed
-          than it was before'
+        name: 'Interface {#IFNAME}({#IFALIAS}): Ethernet has changed to lower speed than it was before'
         opdata: 'Current reported speed: {ITEM.LASTVALUE1}'
         priority: INFO
-        description: This Ethernet connection has transitioned down from its 
-          known maximum speed. This might be a sign of autonegotiation issues. 
-          Ack to close.
+        description: This Ethernet connection has transitioned down from its known maximum speed. This might be a sign of autonegotiation issues. Ack to close.
         dependencies:
         - name: 'Interface {#IFNAME}({#IFALIAS}): Link down'
-          expression: '{$IFCONTROL:"{#IFNAME}"}=1 and (last(/Template Module Interfaces
-            SNMP - Portas Fisicas - emerson.ricardo/net.if.status[ifOperStatus.{#SNMPINDEX}])=2
-            and (last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.status[ifOperStatus.{#SNMPINDEX}],#1)<>last(/Template
-            Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.status[ifOperStatus.{#SNMPINDEX}],#2))=1)'
-          recovery_expression: last(/Template Module Interfaces SNMP - Portas 
-            Fisicas - 
-            emerson.ricardo/net.if.status[ifOperStatus.{#SNMPINDEX}])<>2 or 
-            {$IFCONTROL:"{#IFNAME}"}=0
+          expression: '{$IFCONTROL:"{#IFNAME}"}=1 and (last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.status[ifOperStatus.{#SNMPINDEX}])=2 and (last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.status[ifOperStatus.{#SNMPINDEX}],#1)<>last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.status[ifOperStatus.{#SNMPINDEX}],#2))=1)'
+          recovery_expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.status[ifOperStatus.{#SNMPINDEX}])<>2 or {$IFCONTROL:"{#IFNAME}"}=0
       - uuid: cdaf5340b5c943c08bd4a7e2beae8a3b
-        expression: '(avg(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.in[ifHCInOctets.{#SNMPINDEX}],15m)>({$IF.UTIL.MAX:"{#IFNAME}"}/100)*last(/Template
-          Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.speed[ifHighSpeed.{#SNMPINDEX}])
-          or
+        expression: '(avg(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.in[ifHCInOctets.{#SNMPINDEX}],15m)>({$IF.UTIL.MAX:"{#IFNAME}"}/100)*last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.speed[ifHighSpeed.{#SNMPINDEX}]) or
 
-          avg(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.out[ifHCOutOctets.{#SNMPINDEX}],15m)>({$IF.UTIL.MAX:"{#IFNAME}"}/100)*last(/Template
-          Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.speed[ifHighSpeed.{#SNMPINDEX}]))
-          and
+          avg(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.out[ifHCOutOctets.{#SNMPINDEX}],15m)>({$IF.UTIL.MAX:"{#IFNAME}"}/100)*last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.speed[ifHighSpeed.{#SNMPINDEX}])) and
 
           last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.speed[ifHighSpeed.{#SNMPINDEX}])>0
 
           '
         recovery_mode: RECOVERY_EXPRESSION
-        recovery_expression: 'avg(/Template Module Interfaces SNMP - Portas Fisicas
-          - emerson.ricardo/net.if.in[ifHCInOctets.{#SNMPINDEX}],15m)<(({$IF.UTIL.MAX:"{#IFNAME}"}-3)/100)*last(/Template
-          Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.speed[ifHighSpeed.{#SNMPINDEX}])
-          and
+        recovery_expression: 'avg(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.in[ifHCInOctets.{#SNMPINDEX}],15m)<(({$IF.UTIL.MAX:"{#IFNAME}"}-3)/100)*last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.speed[ifHighSpeed.{#SNMPINDEX}]) and
 
-          avg(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.out[ifHCOutOctets.{#SNMPINDEX}],15m)<(({$IF.UTIL.MAX:"{#IFNAME}"}-3)/100)*last(/Template
-          Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.speed[ifHighSpeed.{#SNMPINDEX}])
+          avg(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.out[ifHCOutOctets.{#SNMPINDEX}],15m)<(({$IF.UTIL.MAX:"{#IFNAME}"}-3)/100)*last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.speed[ifHighSpeed.{#SNMPINDEX}])
 
           '
         name: 'Interface {#IFNAME}({#IFALIAS}): High bandwidth usage (>{$IF.UTIL.MAX:"{#IFNAME}"}%)'
         opdata: 'In: {ITEM.LASTVALUE1}, out: {ITEM.LASTVALUE3}, speed: {ITEM.LASTVALUE2}'
         priority: WARNING
-        description: The network interface utilization is close to its estimated
-          maximum bandwidth.
+        description: The network interface utilization is close to its estimated maximum bandwidth.
         manual_close: 'YES'
         dependencies:
         - name: 'Interface {#IFNAME}({#IFALIAS}): Link down'
-          expression: '{$IFCONTROL:"{#IFNAME}"}=1 and (last(/Template Module Interfaces
-            SNMP - Portas Fisicas - emerson.ricardo/net.if.status[ifOperStatus.{#SNMPINDEX}])=2
-            and (last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.status[ifOperStatus.{#SNMPINDEX}],#1)<>last(/Template
-            Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.status[ifOperStatus.{#SNMPINDEX}],#2))=1)'
-          recovery_expression: last(/Template Module Interfaces SNMP - Portas 
-            Fisicas - 
-            emerson.ricardo/net.if.status[ifOperStatus.{#SNMPINDEX}])<>2 or 
-            {$IFCONTROL:"{#IFNAME}"}=0
+          expression: '{$IFCONTROL:"{#IFNAME}"}=1 and (last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.status[ifOperStatus.{#SNMPINDEX}])=2 and (last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.status[ifOperStatus.{#SNMPINDEX}],#1)<>last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.status[ifOperStatus.{#SNMPINDEX}],#2))=1)'
+          recovery_expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.status[ifOperStatus.{#SNMPINDEX}])<>2 or {$IFCONTROL:"{#IFNAME}"}=0
       - uuid: 6bd7256e32f94d76a8e44dd5c5fac4ac
         expression: 'min(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.in.errors[ifInErrors.{#SNMPINDEX}],5m)>{$IF.ERRORS.WARN:"{#IFNAME}"}
 
@@ -287,28 +231,19 @@ zabbix_export:
 
           '
         recovery_mode: RECOVERY_EXPRESSION
-        recovery_expression: 'max(/Template Module Interfaces SNMP - Portas Fisicas
-          - emerson.ricardo/net.if.in.errors[ifInErrors.{#SNMPINDEX}],5m)<{$IF.ERRORS.WARN:"{#IFNAME}"}*0.8
+        recovery_expression: 'max(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.in.errors[ifInErrors.{#SNMPINDEX}],5m)<{$IF.ERRORS.WARN:"{#IFNAME}"}*0.8
 
           and max(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.out.errors[ifOutErrors.{#SNMPINDEX}],5m)<{$IF.ERRORS.WARN:"{#IFNAME}"}*0.8
 
           '
-        name: 'Interface {#IFNAME}({#IFALIAS}): High error rate (>{$IF.ERRORS.WARN:"{#IFNAME}"}
-          for 5m)'
+        name: 'Interface {#IFNAME}({#IFALIAS}): High error rate (>{$IF.ERRORS.WARN:"{#IFNAME}"} for 5m)'
         opdata: 'errors in: {ITEM.LASTVALUE1}, errors out: {ITEM.LASTVALUE2}'
         priority: WARNING
-        description: Recovers when below 80% of {$IF.ERRORS.WARN:"{#IFNAME}"} 
-          threshold
+        description: Recovers when below 80% of {$IF.ERRORS.WARN:"{#IFNAME}"} threshold
         dependencies:
         - name: 'Interface {#IFNAME}({#IFALIAS}): Link down'
-          expression: '{$IFCONTROL:"{#IFNAME}"}=1 and (last(/Template Module Interfaces
-            SNMP - Portas Fisicas - emerson.ricardo/net.if.status[ifOperStatus.{#SNMPINDEX}])=2
-            and (last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.status[ifOperStatus.{#SNMPINDEX}],#1)<>last(/Template
-            Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.status[ifOperStatus.{#SNMPINDEX}],#2))=1)'
-          recovery_expression: last(/Template Module Interfaces SNMP - Portas 
-            Fisicas - 
-            emerson.ricardo/net.if.status[ifOperStatus.{#SNMPINDEX}])<>2 or 
-            {$IFCONTROL:"{#IFNAME}"}=0
+          expression: '{$IFCONTROL:"{#IFNAME}"}=1 and (last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.status[ifOperStatus.{#SNMPINDEX}])=2 and (last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.status[ifOperStatus.{#SNMPINDEX}],#1)<>last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.status[ifOperStatus.{#SNMPINDEX}],#2))=1)'
+          recovery_expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.status[ifOperStatus.{#SNMPINDEX}])<>2 or {$IFCONTROL:"{#IFNAME}"}=0
       - uuid: d1c3a8cf4e7e4770974a87a2b6ba62b8
         expression: '(
 
@@ -429,22 +364,12 @@ zabbix_export:
         name: 'Possivel Queda de Trafego (-40%): Interface {#IFNAME}({#IFALIAS})'
         opdata: 'In: {ITEM.LASTVALUE1}, out: {ITEM.LASTVALUE3}'
         priority: AVERAGE
-        description: Detecta possível baixa brusca de tráfego em porta física. 
-          Dispara quando a entrada ou saída cai 40% ou mais em relação à média 
-          das últimas 3 horas, com queda mínima aproximada de 10 Mbps e tráfego 
-          existente nos últimos ciclos. A dependência com Link down evita 
-          duplicidade quando a porta estiver realmente down.
+        description: Detecta possível baixa brusca de tráfego em porta física. Dispara quando a entrada ou saída cai 40% ou mais em relação à média das últimas 3 horas, com queda mínima aproximada de 10 Mbps e tráfego existente nos últimos ciclos. A dependência com Link down evita duplicidade quando a porta estiver realmente down.
         manual_close: 'YES'
         dependencies:
         - name: 'Interface {#IFNAME}({#IFALIAS}): Link down'
-          expression: '{$IFCONTROL:"{#IFNAME}"}=1 and (last(/Template Module Interfaces
-            SNMP - Portas Fisicas - emerson.ricardo/net.if.status[ifOperStatus.{#SNMPINDEX}])=2
-            and (last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.status[ifOperStatus.{#SNMPINDEX}],#1)<>last(/Template
-            Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.status[ifOperStatus.{#SNMPINDEX}],#2))=1)'
-          recovery_expression: last(/Template Module Interfaces SNMP - Portas 
-            Fisicas - 
-            emerson.ricardo/net.if.status[ifOperStatus.{#SNMPINDEX}])<>2 or 
-            {$IFCONTROL:"{#IFNAME}"}=0
+          expression: '{$IFCONTROL:"{#IFNAME}"}=1 and (last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.status[ifOperStatus.{#SNMPINDEX}])=2 and (last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.status[ifOperStatus.{#SNMPINDEX}],#1)<>last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.status[ifOperStatus.{#SNMPINDEX}],#2))=1)'
+          recovery_expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/net.if.status[ifOperStatus.{#SNMPINDEX}])<>2 or {$IFCONTROL:"{#IFNAME}"}=0
       graph_prototypes:
       - uuid: 709ce2804c86442093cbec588ed2ee48
         name: 'Interface {#IFNAME}({#IFALIAS}): Network traffic'
@@ -452,64 +377,50 @@ zabbix_export:
         - drawtype: GRADIENT_LINE
           color: 1A7C11
           item:
-            host: Template Module Interfaces SNMP - Portas Fisicas - 
-              emerson.ricardo
+            host: Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo
             key: net.if.in[ifHCInOctets.{#SNMPINDEX}]
         - sortorder: '1'
           drawtype: BOLD_LINE
           color: 2774A4
           item:
-            host: Template Module Interfaces SNMP - Portas Fisicas - 
-              emerson.ricardo
+            host: Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo
             key: net.if.out[ifHCOutOctets.{#SNMPINDEX}]
         - sortorder: '2'
           color: F63100
           yaxisside: RIGHT
           item:
-            host: Template Module Interfaces SNMP - Portas Fisicas - 
-              emerson.ricardo
+            host: Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo
             key: net.if.out.errors[ifOutErrors.{#SNMPINDEX}]
         - sortorder: '3'
           color: A54F10
           yaxisside: RIGHT
           item:
-            host: Template Module Interfaces SNMP - Portas Fisicas - 
-              emerson.ricardo
+            host: Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo
             key: net.if.in.errors[ifInErrors.{#SNMPINDEX}]
         - sortorder: '4'
           color: FC6EA3
           yaxisside: RIGHT
           item:
-            host: Template Module Interfaces SNMP - Portas Fisicas - 
-              emerson.ricardo
+            host: Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo
             key: net.if.out.discards[ifOutDiscards.{#SNMPINDEX}]
         - sortorder: '5'
           color: 6C59DC
           yaxisside: RIGHT
           item:
-            host: Template Module Interfaces SNMP - Portas Fisicas - 
-              emerson.ricardo
+            host: Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo
             key: net.if.in.discards[ifInDiscards.{#SNMPINDEX}]
     - uuid: cb168ada21b840bd9ca01ac8d4df9f24
-      name: Network Optical Modules Single Lane discovery - Huawei thresholds 
-        numeric only
+      name: Network Optical Modules Single Lane discovery - Huawei thresholds
       type: SNMP_AGENT
-      snmp_oid: 
-        discovery[{#IFNAME},1.3.6.1.2.1.47.1.1.1.1.7,{#SFP_SERIAL},1.3.6.1.4.1.2011.5.25.31.1.1.3.1.4,{#SFP_VENDOR},1.3.6.1.4.1.2011.5.25.31.1.1.3.1.24,{#SFP_MODEL},1.3.6.1.4.1.2011.5.25.31.1.1.3.1.25,{#RX_RAW},1.3.6.1.4.1.2011.5.25.31.1.1.3.1.32,{#TX_RAW},1.3.6.1.4.1.2011.5.25.31.1.1.3.1.33]
+      snmp_oid: discovery[{#IFNAME},1.3.6.1.2.1.47.1.1.1.1.7,{#SFP_SERIAL},1.3.6.1.4.1.2011.5.25.31.1.1.3.1.4,{#SFP_VENDOR},1.3.6.1.4.1.2011.5.25.31.1.1.3.1.24,{#SFP_MODEL},1.3.6.1.4.1.2011.5.25.31.1.1.3.1.25]
       key: hw.optical.discovery.single.lane
       delay: 1h
       lifetime: 30d
       enabled_lifetime_type: DISABLE_NEVER
-      description: 'Descobre módulos ópticos Huawei pela HUAWEI-ENTITY-EXTENT-MIB
-        e coleta RX/TX Power com os limites reais do transceiver.
+      description: 'Descobre módulos ópticos Huawei pela HUAWEI-ENTITY-EXTENT-MIB e coleta RX/TX Power com os limites reais do transceiver.
 
 
-        Filtro ajustado para descobrir somente interfaces físicas ópticas e ignorar
-        Board/Card/POWER/PWR/FAN, evitando erro de preprocessing em valores string.
-
-
-        Ajuste: adicionadas macros {#RX_RAW}/{#TX_RAW} no LLD e filtro numerico para
-        nao criar itens em portas sem DOM/DDM ou valores string.'
+        Filtro ajustado para descobrir somente interfaces físicas ópticas e ignorar Board/Card/POWER/PWR/FAN, evitando erro de preprocessing em valores string.'
       item_prototypes:
       - uuid: 0d31b92beed24c06ad27a4d2997af723
         name: 'Optical Module Interface {#IFNAME}: RxPower'
@@ -521,8 +432,7 @@ zabbix_export:
         trends: 365d
         value_type: FLOAT
         units: dBm
-        description: RX optical power atual do módulo Huawei. Valor bruto SNMP 
-          em centésimos de dBm.
+        description: RX optical power atual do módulo Huawei. Valor bruto SNMP em centésimos de dBm.
         preprocessing:
         - type: MULTIPLIER
           parameters:
@@ -540,8 +450,7 @@ zabbix_export:
         trends: 365d
         value_type: FLOAT
         units: dBm
-        description: TX optical power atual do módulo Huawei. Valor bruto SNMP 
-          em centésimos de dBm.
+        description: TX optical power atual do módulo Huawei. Valor bruto SNMP em centésimos de dBm.
         preprocessing:
         - type: MULTIPLIER
           parameters:
@@ -559,8 +468,7 @@ zabbix_export:
         trends: 365d
         value_type: FLOAT
         units: dBm
-        description: Limite baixo de warning do RX Power informado pelo próprio 
-          transceiver Huawei.
+        description: Limite baixo de warning do RX Power informado pelo próprio transceiver Huawei.
         preprocessing:
         - type: MULTIPLIER
           parameters:
@@ -578,8 +486,7 @@ zabbix_export:
         trends: 365d
         value_type: FLOAT
         units: dBm
-        description: Limite baixo crítico/threshold do RX Power informado pelo 
-          próprio transceiver Huawei.
+        description: Limite baixo crítico/threshold do RX Power informado pelo próprio transceiver Huawei.
         preprocessing:
         - type: MULTIPLIER
           parameters:
@@ -597,8 +504,7 @@ zabbix_export:
         trends: 365d
         value_type: FLOAT
         units: dBm
-        description: Limite alto de warning do RX Power informado pelo próprio 
-          transceiver Huawei.
+        description: Limite alto de warning do RX Power informado pelo próprio transceiver Huawei.
         preprocessing:
         - type: MULTIPLIER
           parameters:
@@ -616,8 +522,7 @@ zabbix_export:
         trends: 365d
         value_type: FLOAT
         units: dBm
-        description: Limite alto crítico/threshold do RX Power informado pelo 
-          próprio transceiver Huawei.
+        description: Limite alto crítico/threshold do RX Power informado pelo próprio transceiver Huawei.
         preprocessing:
         - type: MULTIPLIER
           parameters:
@@ -635,8 +540,7 @@ zabbix_export:
         trends: 365d
         value_type: FLOAT
         units: dBm
-        description: Limite baixo de warning do TX Power informado pelo próprio 
-          transceiver Huawei.
+        description: Limite baixo de warning do TX Power informado pelo próprio transceiver Huawei.
         preprocessing:
         - type: MULTIPLIER
           parameters:
@@ -654,8 +558,7 @@ zabbix_export:
         trends: 365d
         value_type: FLOAT
         units: dBm
-        description: Limite baixo crítico/threshold do TX Power informado pelo 
-          próprio transceiver Huawei.
+        description: Limite baixo crítico/threshold do TX Power informado pelo próprio transceiver Huawei.
         preprocessing:
         - type: MULTIPLIER
           parameters:
@@ -673,8 +576,7 @@ zabbix_export:
         trends: 365d
         value_type: FLOAT
         units: dBm
-        description: Limite alto de warning do TX Power informado pelo próprio 
-          transceiver Huawei.
+        description: Limite alto de warning do TX Power informado pelo próprio transceiver Huawei.
         preprocessing:
         - type: MULTIPLIER
           parameters:
@@ -692,8 +594,7 @@ zabbix_export:
         trends: 365d
         value_type: FLOAT
         units: dBm
-        description: Limite alto crítico/threshold do TX Power informado pelo 
-          próprio transceiver Huawei.
+        description: Limite alto crítico/threshold do TX Power informado pelo próprio transceiver Huawei.
         preprocessing:
         - type: MULTIPLIER
           parameters:
@@ -750,8 +651,7 @@ zabbix_export:
         trends: 365d
         value_type: FLOAT
         units: °C
-        description: Temperatura atual do transceiver Huawei obtida via 
-          HUAWEI-ENTITY-EXTENT-MIB.
+        description: Temperatura atual do transceiver Huawei obtida via HUAWEI-ENTITY-EXTENT-MIB.
         tags:
         - tag: Application
           value: Network interfaces Sinal
@@ -765,8 +665,25 @@ zabbix_export:
         trends: 365d
         value_type: FLOAT
         units: V
-        description: Voltagem atual do transceiver Huawei. Valor bruto SNMP em 
-          mV.
+        description: Voltagem atual do transceiver Huawei. Valor bruto SNMP em mV.
+        tags:
+        - tag: Application
+          value: Network interfaces Sinal
+        preprocessing:
+        - type: MULTIPLIER
+          parameters:
+          - '0.001'
+      - uuid: 2b58ba4b46bb45089cfd918f5a707872
+        name: 'Optical Module Interface {#IFNAME}: Bias Current'
+        type: SNMP_AGENT
+        snmp_oid: 1.3.6.1.4.1.2011.5.25.31.1.1.3.1.7.{#SNMPINDEX}
+        key: hwEntityOpticalLaneBiasCurrent[{#IFNAME}]
+        delay: 5m
+        history: 10d
+        trends: 365d
+        value_type: FLOAT
+        units: mA
+        description: Bias current atual do transceiver Huawei. Valor bruto SNMP em microampere, convertido para mA.
         tags:
         - tag: Application
           value: Network interfaces Sinal
@@ -776,163 +693,97 @@ zabbix_export:
           - '0.001'
       trigger_prototypes:
       - uuid: 95d6a7f3280441929197876a3320c1b5
-        expression: last(/Template Module Interfaces SNMP - Portas Fisicas - 
-          emerson.ricardo/hwEntityOpticalLaneRxPower[{#IFNAME}])<=last(/Template
-          Module Interfaces SNMP - Portas Fisicas - 
-          emerson.ricardo/hwEntityOpticalLaneRxPowerLowThreshold[{#IFNAME}]) and
-          last(/Template Module Interfaces SNMP - Portas Fisicas - 
-          emerson.ricardo/hwEntityOpticalLaneRxPowerLowThreshold[{#IFNAME}])<-1
+        expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPower[{#IFNAME}])<=last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPowerLowThreshold[{#IFNAME}]) and last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPowerLowThreshold[{#IFNAME}])<-1
         recovery_mode: RECOVERY_EXPRESSION
-        recovery_expression: last(/Template Module Interfaces SNMP - Portas 
-          Fisicas - 
-          emerson.ricardo/hwEntityOpticalLaneRxPower[{#IFNAME}])>last(/Template 
-          Module Interfaces SNMP - Portas Fisicas - 
-          emerson.ricardo/hwEntityOpticalLaneRxPowerLowThreshold[{#IFNAME}])+0.5
-          or last(/Template Module Interfaces SNMP - Portas Fisicas - 
-          emerson.ricardo/hwEntityOpticalLaneRxPowerLowThreshold[{#IFNAME}])>=-1
+        recovery_expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPower[{#IFNAME}])>last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPowerLowThreshold[{#IFNAME}])+0.5 or last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPowerLowThreshold[{#IFNAME}])>=-1
         name: 'Sinal RX CRITICO: Interface {#IFNAME}'
         opdata: 'RX: {ITEM.LASTVALUE1} / Limite: {ITEM.LASTVALUE2}'
         priority: HIGH
-        description: RX Power atingiu ou passou o limite baixo crítico informado
-          pelo próprio transceiver.
+        description: RX Power atingiu ou passou o limite baixo crítico informado pelo próprio transceiver.
         manual_close: 'YES'
       - uuid: 42c27b9683d34b309060e7d02c725f8e
-        expression: last(/Template Module Interfaces SNMP - Portas Fisicas - 
-          emerson.ricardo/hwEntityOpticalLaneRxPower[{#IFNAME}])<=last(/Template
-          Module Interfaces SNMP - Portas Fisicas - 
-          emerson.ricardo/hwEntityOpticalLaneRxPowerLowWarning[{#IFNAME}]) and 
-          last(/Template Module Interfaces SNMP - Portas Fisicas - 
-          emerson.ricardo/hwEntityOpticalLaneRxPowerLowWarning[{#IFNAME}])<-1
+        expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPower[{#IFNAME}])<=last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPowerLowWarning[{#IFNAME}]) and last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPowerLowWarning[{#IFNAME}])<-1
         recovery_mode: RECOVERY_EXPRESSION
-        recovery_expression: last(/Template Module Interfaces SNMP - Portas 
-          Fisicas - 
-          emerson.ricardo/hwEntityOpticalLaneRxPower[{#IFNAME}])>last(/Template 
-          Module Interfaces SNMP - Portas Fisicas - 
-          emerson.ricardo/hwEntityOpticalLaneRxPowerLowWarning[{#IFNAME}])+0.5 
-          or last(/Template Module Interfaces SNMP - Portas Fisicas - 
-          emerson.ricardo/hwEntityOpticalLaneRxPowerLowWarning[{#IFNAME}])>=-1
+        recovery_expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPower[{#IFNAME}])>last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPowerLowWarning[{#IFNAME}])+0.5 or last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPowerLowWarning[{#IFNAME}])>=-1
         name: 'Sinal RX atenuado: Interface {#IFNAME}'
         opdata: 'RX: {ITEM.LASTVALUE1} / Limite: {ITEM.LASTVALUE2}'
         priority: WARNING
-        description: RX Power atingiu ou passou o limite baixo de warning 
-          informado pelo próprio transceiver.
+        description: RX Power atingiu ou passou o limite baixo de warning informado pelo próprio transceiver.
         manual_close: 'YES'
         dependencies:
         - name: 'Sinal RX CRITICO: Interface {#IFNAME}'
-          expression: last(/Template Module Interfaces SNMP - Portas Fisicas - 
-            emerson.ricardo/hwEntityOpticalLaneRxPower[{#IFNAME}])<=last(/Template
-            Module Interfaces SNMP - Portas Fisicas - 
-            emerson.ricardo/hwEntityOpticalLaneRxPowerLowThreshold[{#IFNAME}]) 
-            and last(/Template Module Interfaces SNMP - Portas Fisicas - 
-            emerson.ricardo/hwEntityOpticalLaneRxPowerLowThreshold[{#IFNAME}])<-1
-          recovery_expression: last(/Template Module Interfaces SNMP - Portas 
-            Fisicas - 
-            emerson.ricardo/hwEntityOpticalLaneRxPower[{#IFNAME}])>last(/Template
-            Module Interfaces SNMP - Portas Fisicas - 
-            emerson.ricardo/hwEntityOpticalLaneRxPowerLowThreshold[{#IFNAME}])+0.5
-            or last(/Template Module Interfaces SNMP - Portas Fisicas - 
-            emerson.ricardo/hwEntityOpticalLaneRxPowerLowThreshold[{#IFNAME}])>=-1
+          expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPower[{#IFNAME}])<=last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPowerLowThreshold[{#IFNAME}]) and last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPowerLowThreshold[{#IFNAME}])<-1
+          recovery_expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPower[{#IFNAME}])>last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPowerLowThreshold[{#IFNAME}])+0.5 or last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneRxPowerLowThreshold[{#IFNAME}])>=-1
       - uuid: c0892787fc2b4611aa38a11b4407a1c8
-        expression: last(/Template Module Interfaces SNMP - Portas Fisicas - 
-          emerson.ricardo/hwEntityOpticalLaneTxPower[{#IFNAME}])<=last(/Template
-          Module Interfaces SNMP - Portas Fisicas - 
-          emerson.ricardo/hwEntityOpticalLaneTxPowerLowThreshold[{#IFNAME}]) and
-          last(/Template Module Interfaces SNMP - Portas Fisicas - 
-          emerson.ricardo/hwEntityOpticalLaneTxPowerLowThreshold[{#IFNAME}])<-1
+        expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneTxPower[{#IFNAME}])<=last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneTxPowerLowThreshold[{#IFNAME}]) and last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneTxPowerLowThreshold[{#IFNAME}])<-1
         recovery_mode: RECOVERY_EXPRESSION
-        recovery_expression: last(/Template Module Interfaces SNMP - Portas 
-          Fisicas - 
-          emerson.ricardo/hwEntityOpticalLaneTxPower[{#IFNAME}])>last(/Template 
-          Module Interfaces SNMP - Portas Fisicas - 
-          emerson.ricardo/hwEntityOpticalLaneTxPowerLowThreshold[{#IFNAME}])+0.5
-          or last(/Template Module Interfaces SNMP - Portas Fisicas - 
-          emerson.ricardo/hwEntityOpticalLaneTxPowerLowThreshold[{#IFNAME}])>=-1
+        recovery_expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneTxPower[{#IFNAME}])>last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneTxPowerLowThreshold[{#IFNAME}])+0.5 or last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneTxPowerLowThreshold[{#IFNAME}])>=-1
         name: 'Potencia TX CRITICA: Interface {#IFNAME}'
         opdata: 'TX: {ITEM.LASTVALUE1} / Limite: {ITEM.LASTVALUE2}'
         priority: AVERAGE
-        description: TX Power atingiu ou passou o limite baixo crítico informado
-          pelo próprio transceiver.
+        description: TX Power atingiu ou passou o limite baixo crítico informado pelo próprio transceiver.
         manual_close: 'YES'
       - uuid: 0c3570a04fac4c49b433890ee49790cc
-        expression: last(/Template Module Interfaces SNMP - Portas Fisicas - 
-          emerson.ricardo/hwEntityOpticalLaneTxPower[{#IFNAME}])<=last(/Template
-          Module Interfaces SNMP - Portas Fisicas - 
-          emerson.ricardo/hwEntityOpticalLaneTxPowerLowWarning[{#IFNAME}]) and 
-          last(/Template Module Interfaces SNMP - Portas Fisicas - 
-          emerson.ricardo/hwEntityOpticalLaneTxPowerLowWarning[{#IFNAME}])<-1
+        expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneTxPower[{#IFNAME}])<=last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneTxPowerLowWarning[{#IFNAME}]) and last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneTxPowerLowWarning[{#IFNAME}])<-1
         recovery_mode: RECOVERY_EXPRESSION
-        recovery_expression: last(/Template Module Interfaces SNMP - Portas 
-          Fisicas - 
-          emerson.ricardo/hwEntityOpticalLaneTxPower[{#IFNAME}])>last(/Template 
-          Module Interfaces SNMP - Portas Fisicas - 
-          emerson.ricardo/hwEntityOpticalLaneTxPowerLowWarning[{#IFNAME}])+0.5 
-          or last(/Template Module Interfaces SNMP - Portas Fisicas - 
-          emerson.ricardo/hwEntityOpticalLaneTxPowerLowWarning[{#IFNAME}])>=-1
+        recovery_expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneTxPower[{#IFNAME}])>last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneTxPowerLowWarning[{#IFNAME}])+0.5 or last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneTxPowerLowWarning[{#IFNAME}])>=-1
         name: 'Potencia TX baixa: Interface {#IFNAME}'
         opdata: 'TX: {ITEM.LASTVALUE1} / Limite: {ITEM.LASTVALUE2}'
         priority: WARNING
-        description: TX Power atingiu ou passou o limite baixo de warning 
-          informado pelo próprio transceiver.
+        description: TX Power atingiu ou passou o limite baixo de warning informado pelo próprio transceiver.
         manual_close: 'YES'
         dependencies:
         - name: 'Potencia TX CRITICA: Interface {#IFNAME}'
-          expression: last(/Template Module Interfaces SNMP - Portas Fisicas - 
-            emerson.ricardo/hwEntityOpticalLaneTxPower[{#IFNAME}])<=last(/Template
-            Module Interfaces SNMP - Portas Fisicas - 
-            emerson.ricardo/hwEntityOpticalLaneTxPowerLowThreshold[{#IFNAME}]) 
-            and last(/Template Module Interfaces SNMP - Portas Fisicas - 
-            emerson.ricardo/hwEntityOpticalLaneTxPowerLowThreshold[{#IFNAME}])<-1
-          recovery_expression: last(/Template Module Interfaces SNMP - Portas 
-            Fisicas - 
-            emerson.ricardo/hwEntityOpticalLaneTxPower[{#IFNAME}])>last(/Template
-            Module Interfaces SNMP - Portas Fisicas - 
-            emerson.ricardo/hwEntityOpticalLaneTxPowerLowThreshold[{#IFNAME}])+0.5
-            or last(/Template Module Interfaces SNMP - Portas Fisicas - 
-            emerson.ricardo/hwEntityOpticalLaneTxPowerLowThreshold[{#IFNAME}])>=-1
+          expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneTxPower[{#IFNAME}])<=last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneTxPowerLowThreshold[{#IFNAME}]) and last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneTxPowerLowThreshold[{#IFNAME}])<-1
+          recovery_expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneTxPower[{#IFNAME}])>last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneTxPowerLowThreshold[{#IFNAME}])+0.5 or last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneTxPowerLowThreshold[{#IFNAME}])>=-1
       - uuid: 123869da13cb4705b22ddef9ff87dc70
-        expression: last(/Template Module Interfaces SNMP - Portas Fisicas - 
-          emerson.ricardo/hwEntityOpticalLaneTemperature[{#IFNAME}])>={$SFP.TEMP.HIGH}
+        expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneTemperature[{#IFNAME}])>={$SFP.TEMP.HIGH}
         recovery_mode: RECOVERY_EXPRESSION
-        recovery_expression: last(/Template Module Interfaces SNMP - Portas 
-          Fisicas - 
-          emerson.ricardo/hwEntityOpticalLaneTemperature[{#IFNAME}])<={$SFP.TEMP.HIGH}-5
+        recovery_expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneTemperature[{#IFNAME}])<={$SFP.TEMP.HIGH}-5
         name: 'Temperatura ALTA no transceiver: Interface {#IFNAME}'
         opdata: 'Temp: {ITEM.LASTVALUE1}'
         priority: AVERAGE
-        description: Temperatura do transceiver atingiu o limite alto definido 
-          por macro.
+        description: Temperatura do transceiver atingiu o limite alto definido por macro.
         manual_close: 'YES'
       - uuid: 0244b7c9ed494720a1ec9d4007ddee5c
-        expression: last(/Template Module Interfaces SNMP - Portas Fisicas - 
-          emerson.ricardo/hwEntityOpticalLaneTemperature[{#IFNAME}])>={$SFP.TEMP.WARN}
+        expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneTemperature[{#IFNAME}])>={$SFP.TEMP.WARN}
         recovery_mode: RECOVERY_EXPRESSION
-        recovery_expression: last(/Template Module Interfaces SNMP - Portas 
-          Fisicas - 
-          emerson.ricardo/hwEntityOpticalLaneTemperature[{#IFNAME}])<={$SFP.TEMP.WARN}-5
+        recovery_expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneTemperature[{#IFNAME}])<={$SFP.TEMP.WARN}-5
         name: 'Temperatura elevada no transceiver: Interface {#IFNAME}'
         opdata: 'Temp: {ITEM.LASTVALUE1}'
         priority: WARNING
-        description: Temperatura do transceiver atingiu o limite de warning 
-          definido por macro.
+        description: Temperatura do transceiver atingiu o limite de warning definido por macro.
         manual_close: 'YES'
         dependencies:
         - name: 'Temperatura ALTA no transceiver: Interface {#IFNAME}'
-          expression: last(/Template Module Interfaces SNMP - Portas Fisicas - 
-            emerson.ricardo/hwEntityOpticalLaneTemperature[{#IFNAME}])>={$SFP.TEMP.HIGH}
-          recovery_expression: last(/Template Module Interfaces SNMP - Portas 
-            Fisicas - 
-            emerson.ricardo/hwEntityOpticalLaneTemperature[{#IFNAME}])<={$SFP.TEMP.HIGH}-5
-      - uuid: cf28693bda384210a607e8cbe6991c5b
-        expression: last(/Template Module Interfaces SNMP - Portas Fisicas - 
-          emerson.ricardo/hwEntityOpticalLaneVoltage[{#IFNAME}])<{$SFP.VOLT.MIN}
-          or last(/Template Module Interfaces SNMP - Portas Fisicas - 
-          emerson.ricardo/hwEntityOpticalLaneVoltage[{#IFNAME}])>{$SFP.VOLT.MAX}
+          expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneTemperature[{#IFNAME}])>={$SFP.TEMP.HIGH}
+          recovery_expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneTemperature[{#IFNAME}])<={$SFP.TEMP.HIGH}-5
+      - uuid: c837a1d95b134e538c45d4557d083da9
+        expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneBiasCurrent[{#IFNAME}])>={$SFP.BIAS.HIGH}
         recovery_mode: RECOVERY_EXPRESSION
-        recovery_expression: last(/Template Module Interfaces SNMP - Portas 
-          Fisicas - 
-          emerson.ricardo/hwEntityOpticalLaneVoltage[{#IFNAME}])>={$SFP.VOLT.MIN}+0.05
-          and last(/Template Module Interfaces SNMP - Portas Fisicas - 
-          emerson.ricardo/hwEntityOpticalLaneVoltage[{#IFNAME}])<={$SFP.VOLT.MAX}-0.05
+        recovery_expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneBiasCurrent[{#IFNAME}])<={$SFP.BIAS.HIGH}-5
+        name: 'Bias Current ALTO no transceiver: Interface {#IFNAME}'
+        opdata: 'Bias: {ITEM.LASTVALUE1}'
+        priority: AVERAGE
+        description: Bias current alto no transceiver. Pode indicar laser degradando ou modulo operando fora da curva.
+        manual_close: 'YES'
+      - uuid: a8a37ad478834a00bc839af825eb9497
+        expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneBiasCurrent[{#IFNAME}])>={$SFP.BIAS.WARN}
+        recovery_mode: RECOVERY_EXPRESSION
+        recovery_expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneBiasCurrent[{#IFNAME}])<={$SFP.BIAS.WARN}-5
+        name: 'Bias Current elevado no transceiver: Interface {#IFNAME}'
+        opdata: 'Bias: {ITEM.LASTVALUE1}'
+        priority: WARNING
+        description: Bias current acima do valor de warning definido por macro.
+        manual_close: 'YES'
+        dependencies:
+        - name: 'Bias Current ALTO no transceiver: Interface {#IFNAME}'
+          expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneBiasCurrent[{#IFNAME}])>={$SFP.BIAS.HIGH}
+          recovery_expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneBiasCurrent[{#IFNAME}])<={$SFP.BIAS.HIGH}-5
+      - uuid: cf28693bda384210a607e8cbe6991c5b
+        expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneVoltage[{#IFNAME}])<{$SFP.VOLT.MIN} or last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneVoltage[{#IFNAME}])>{$SFP.VOLT.MAX}
+        recovery_mode: RECOVERY_EXPRESSION
+        recovery_expression: last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneVoltage[{#IFNAME}])>={$SFP.VOLT.MIN}+0.05 and last(/Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo/hwEntityOpticalLaneVoltage[{#IFNAME}])<={$SFP.VOLT.MAX}-0.05
         name: 'Voltagem fora da faixa no transceiver: Interface {#IFNAME}'
         opdata: 'Voltage: {ITEM.LASTVALUE1}'
         priority: WARNING
@@ -944,57 +795,49 @@ zabbix_export:
         graph_items:
         - color: 1A7C11
           item:
-            host: Template Module Interfaces SNMP - Portas Fisicas - 
-              emerson.ricardo
+            host: Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo
             key: hwEntityOpticalLaneRxPower[{#IFNAME}]
         - sortorder: '1'
           color: 2774A4
           item:
-            host: Template Module Interfaces SNMP - Portas Fisicas - 
-              emerson.ricardo
+            host: Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo
             key: hwEntityOpticalLaneTxPower[{#IFNAME}]
         - sortorder: '2'
           color: F63100
           item:
-            host: Template Module Interfaces SNMP - Portas Fisicas - 
-              emerson.ricardo
+            host: Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo
             key: hwEntityOpticalLaneRxPowerLowWarning[{#IFNAME}]
         - sortorder: '3'
           color: A54F10
           item:
-            host: Template Module Interfaces SNMP - Portas Fisicas - 
-              emerson.ricardo
+            host: Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo
             key: hwEntityOpticalLaneRxPowerLowThreshold[{#IFNAME}]
       - uuid: 81257a49e2c946fa88c3d64af9395f0d
-        name: 'Optical Module Interface {#IFNAME}: Temperature and Voltage'
+        name: 'Optical Module Interface {#IFNAME}: Temperature, Voltage and Bias'
         graph_items:
         - color: 1A7C11
           item:
-            host: Template Module Interfaces SNMP - Portas Fisicas - 
-              emerson.ricardo
+            host: Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo
             key: hwEntityOpticalLaneTemperature[{#IFNAME}]
         - sortorder: '1'
           color: 2774A4
           item:
-            host: Template Module Interfaces SNMP - Portas Fisicas - 
-              emerson.ricardo
+            host: Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo
             key: hwEntityOpticalLaneVoltage[{#IFNAME}]
+        - sortorder: '2'
+          color: F63100
+          item:
+            host: Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo
+            key: hwEntityOpticalLaneBiasCurrent[{#IFNAME}]
       filter:
         evaltype: AND
         conditions:
         - macro: '{#IFNAME}'
-          value: 
-            ^(XGigabitEthernet|GigabitEthernet|Ethernet|[0-9]+GE|[0-9]+GigabitEthernet)
+          value: ^(XGigabitEthernet|GigabitEthernet|Ethernet|[0-9]+GE|[0-9]+GigabitEthernet)
           operator: MATCHES_REGEX
         - macro: '{#IFNAME}'
           value: ^(Board|Card|POWER|PWR|FAN|NULL|Slot)
           operator: NOT_MATCHES_REGEX
-        - macro: '{#RX_RAW}'
-          value: ^-?[0-9]{2,}$
-          operator: MATCHES_REGEX
-        - macro: '{#TX_RAW}'
-          value: ^-?[0-9]{2,}$
-          operator: MATCHES_REGEX
     macros:
     - macro: '{$IF.ERRORS.WARN}'
       value: '2'
@@ -1019,10 +862,8 @@ zabbix_export:
     - macro: '{$NET.IF.IFNAME.MATCHES}'
       value: ^.*$
     - macro: '{$NET.IF.IFNAME.NOT_MATCHES}'
-      value: (^Software Loopback 
-        Interface|^NULL[0-9.]*$|^[Ll]o[0-9.]*$|^[Ss]ystem$|^Nu[0-9.]*$|^veth[0-9a-z]+$|docker[0-9]+|br-[a-z0-9]{12})
-      description: Filter out loopbacks, nulls, docker veth links and docker0 
-        bridge by default
+      value: (^Software Loopback Interface|^NULL[0-9.]*$|^[Ll]o[0-9.]*$|^[Ss]ystem$|^Nu[0-9.]*$|^veth[0-9a-z]+$|docker[0-9]+|br-[a-z0-9]{12})
+      description: Filter out loopbacks, nulls, docker veth links and docker0 bridge by default
     - macro: '{$NET.IF.IFOPERSTATUS.MATCHES}'
       value: ^.*$
     - macro: '{$NET.IF.IFOPERSTATUS.NOT_MATCHES}'
@@ -1038,6 +879,12 @@ zabbix_export:
     - macro: '{$SFP.TEMP.HIGH}'
       value: '80'
       description: Temperatura alta para transceiver optico em Celsius.
+    - macro: '{$SFP.BIAS.WARN}'
+      value: '80'
+      description: Bias current de warning para transceiver optico em mA.
+    - macro: '{$SFP.BIAS.HIGH}'
+      value: '100'
+      description: Bias current alto para transceiver optico em mA.
     - macro: '{$SFP.VOLT.MIN}'
       value: '3.0'
       description: Voltagem minima aceitavel do transceiver optico.
@@ -1059,8 +906,7 @@ zabbix_export:
           - type: GRAPH_PROTOTYPE
             name: graphid
             value:
-              host: Template Module Interfaces SNMP - Portas Fisicas - 
-                emerson.ricardo
+              host: Template Module Interfaces SNMP - Portas Fisicas - emerson.ricardo
               name: 'Interface {#IFNAME}({#IFALIAS}): Network traffic'
           - type: STRING
             name: reference
