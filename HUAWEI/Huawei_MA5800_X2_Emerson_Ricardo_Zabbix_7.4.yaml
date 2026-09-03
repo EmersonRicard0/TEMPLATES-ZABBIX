@@ -1,0 +1,1494 @@
+zabbix_export:
+  version: '7.4'
+  template_groups:
+  - uuid: 36bff6c29af64692839d077febfc7079
+    name: Templates/Network devices
+  templates:
+  - uuid: 63e17bbce5e2437f90f489523bf15325
+    template: Huawei MA5800-X2 Emerson.Ricardo
+    name: Huawei MA5800-X2 Emerson.Ricardo
+    description: |
+      Template SNMP para Huawei MA5800-X2, construído e validado a partir de uma MA5800-X2 real.
+
+      Principais recursos:
+      - Informações gerais da OLT e total de ONTs;
+      - Descoberta de boards via HWMUSA-DEV-MIB com CPU, RAM, temperatura e estado;
+      - Descoberta de interfaces GPON/Ethernet com Counter64, erros e descartes;
+      - Descoberta de ONTs com correlação ifIndex -> nome da PON;
+      - Serial, descrição, status, distância, last up/down e last down cause;
+      - DDM óptico por SNMP get[] individual: temperatura, bias, TX, RX, tensão e RX visto pela OLT;
+      - Tratamento dos sentinelas Huawei 2147483647 e -1.
+
+      A community SNMP e o endereço IP NÃO ficam neste template; configure-os na interface SNMP do host.
+
+      Revision 7.4-3: Todos os passos de preprocessing possuem o campo parameters, incluindo CHANGE_PER_SECOND.
+      Revision 7.4-5: DDM óptico convertido para get[OID] individual, evitando o walk pesado da árvore óptica.
+      Revision 7.4-7:
+      - OIDs de get[], walk[], SNMP walk to JSON e SNMP walk value normalizados para o formato usado nos templates oficiais Zabbix 7.4 (sem ponto inicial);
+      - ONT inventory reduzido de 1h para 15m para descobrir novas ONTs mais rapidamente;
+      - valores -1 de status/down-cause são descartados antes de chegar a itens Numeric unsigned;
+      - temperaturas usam FLOAT para aceitar valores negativos válidos;
+      - triggers ópticas só avaliam ONTs ONLINE;
+      - dependências ICMP/SNMP adicionadas para reduzir alertas duplicados;
+      - item LEGACY de DDM permanece removido.
+    vendor:
+      name: Emerson.Ricardo
+      version: 7.4-7
+    groups:
+    - name: Templates/Network devices
+    items:
+    - uuid: ea27538a540c4d52abd94b3e3a83b31a
+      name: ICMP ping
+      type: SIMPLE
+      key: icmpping
+      valuemap:
+        name: Service state
+      tags:
+      - tag: component
+        value: health
+      - tag: scope
+        value: availability
+      triggers:
+      - uuid: aa2b635d2cf34ba49061d678dd30149e
+        expression: max(/Huawei MA5800-X2 Emerson.Ricardo/icmpping,#3)=0
+        name: 'Huawei MA5800-X2: Indisponível por ICMP'
+        priority: HIGH
+        description: As últimas três tentativas de ICMP falharam.
+        tags:
+        - tag: scope
+          value: availability
+    - uuid: 73b2a26e1e154b7583b7cc77ea72deea
+      name: ICMP loss
+      type: SIMPLE
+      key: icmppingloss
+      value_type: FLOAT
+      units: '%'
+      tags:
+      - tag: component
+        value: health
+      triggers:
+      - uuid: e28a074026434825966381a2866fda07
+        expression: min(/Huawei MA5800-X2 Emerson.Ricardo/icmppingloss,5m)>{$ICMP_LOSS_WARN} and min(/Huawei MA5800-X2 Emerson.Ricardo/icmppingloss,5m)<100
+        name: 'Huawei MA5800-X2: Perda ICMP elevada'
+        opdata: 'Perda: {ITEM.LASTVALUE1}'
+        priority: WARNING
+        tags:
+        - tag: scope
+          value: performance
+        dependencies:
+        - name: 'Huawei MA5800-X2: Indisponível por ICMP'
+          expression: max(/Huawei MA5800-X2 Emerson.Ricardo/icmpping,#3)=0
+    - uuid: 6aace584a7e04353be645cb792f2ed4e
+      name: ICMP response time
+      type: SIMPLE
+      key: icmppingsec
+      value_type: FLOAT
+      units: s
+      tags:
+      - tag: component
+        value: health
+      triggers:
+      - uuid: a6d3d3073b3c4a57b10bbd3b36e62f44
+        expression: avg(/Huawei MA5800-X2 Emerson.Ricardo/icmppingsec,5m)>{$ICMP_RESPONSE_TIME_WARN}
+        name: 'Huawei MA5800-X2: Latência ICMP elevada'
+        opdata: 'RTT: {ITEM.LASTVALUE1}'
+        priority: WARNING
+        tags:
+        - tag: scope
+          value: performance
+        dependencies:
+        - name: 'Huawei MA5800-X2: Perda ICMP elevada'
+          expression: min(/Huawei MA5800-X2 Emerson.Ricardo/icmppingloss,5m)>{$ICMP_LOSS_WARN} and min(/Huawei MA5800-X2 Emerson.Ricardo/icmppingloss,5m)<100
+        - name: 'Huawei MA5800-X2: Indisponível por ICMP'
+          expression: max(/Huawei MA5800-X2 Emerson.Ricardo/icmpping,#3)=0
+    - uuid: 410e552821b0410fba2d98d250cd5120
+      name: SNMP agent availability
+      type: INTERNAL
+      key: zabbix[host,snmp,available]
+      valuemap:
+        name: Zabbix host availability
+      tags:
+      - tag: component
+        value: health
+      triggers:
+      - uuid: 0f7e38f40227402fad0a2a32e85475eb
+        expression: max(/Huawei MA5800-X2 Emerson.Ricardo/zabbix[host,snmp,available],{$SNMP.TIMEOUT})=0
+        name: 'Huawei MA5800-X2: Coleta SNMP indisponível'
+        priority: WARNING
+        description: O Zabbix não está conseguindo coletar dados via SNMP.
+        tags:
+        - tag: scope
+          value: availability
+        dependencies:
+        - name: 'Huawei MA5800-X2: Indisponível por ICMP'
+          expression: max(/Huawei MA5800-X2 Emerson.Ricardo/icmpping,#3)=0
+    - uuid: 55102d5e3c744a7e83c0b88c7f27e626
+      name: System description
+      type: SNMP_AGENT
+      snmp_oid: get[1.3.6.1.2.1.1.1.0]
+      key: huawei.ma5800.system.descr
+      delay: 1h
+      value_type: CHAR
+      preprocessing:
+      - type: DISCARD_UNCHANGED_HEARTBEAT
+        parameters:
+        - 1d
+      tags:
+      - tag: component
+        value: system
+    - uuid: 27c19de4020b49cc80f706e05a7f546f
+      name: System object ID
+      type: SNMP_AGENT
+      snmp_oid: get[1.3.6.1.2.1.1.2.0]
+      key: huawei.ma5800.system.objectid
+      delay: 1h
+      value_type: CHAR
+      preprocessing:
+      - type: DISCARD_UNCHANGED_HEARTBEAT
+        parameters:
+        - 1d
+      tags:
+      - tag: component
+        value: system
+    - uuid: 29c3b91ef37341c1aaa87a7a09b49d91
+      name: System name
+      type: SNMP_AGENT
+      snmp_oid: get[1.3.6.1.2.1.1.5.0]
+      key: huawei.ma5800.system.name
+      delay: 15m
+      value_type: CHAR
+      preprocessing:
+      - type: DISCARD_UNCHANGED_HEARTBEAT
+        parameters:
+        - 12h
+      tags:
+      - tag: component
+        value: system
+    - uuid: 2db3c90d45ac4cdf9f3c4c9dac4cd5d8
+      name: System uptime
+      type: SNMP_AGENT
+      snmp_oid: get[1.3.6.1.2.1.1.3.0]
+      key: huawei.ma5800.system.uptime
+      delay: 1m
+      units: uptime
+      preprocessing:
+      - type: MULTIPLIER
+        parameters:
+        - '0.01'
+      tags:
+      - tag: component
+        value: system
+    - uuid: 833b60174efb45b98cbca3d990a1b27c
+      name: 'ONTs configured: Total'
+      type: SNMP_AGENT
+      snmp_oid: get[1.3.6.1.4.1.2011.6.145.1.1.4.40.0]
+      key: huawei.ma5800.ont.total
+      delay: 5m
+      tags:
+      - tag: component
+        value: ont
+    - uuid: 243a784f34c043769dd78cd21299ebca
+      name: 'SNMP walk: Boards'
+      type: SNMP_AGENT
+      snmp_oid: walk[1.3.6.1.4.1.2011.2.6.7.1.1.2.1.5,1.3.6.1.4.1.2011.2.6.7.1.1.2.1.6,1.3.6.1.4.1.2011.2.6.7.1.1.2.1.7,1.3.6.1.4.1.2011.2.6.7.1.1.2.1.8,1.3.6.1.4.1.2011.2.6.7.1.1.2.1.10,1.3.6.1.4.1.2011.2.6.7.1.1.2.1.18,1.3.6.1.4.1.2011.2.6.7.1.1.2.1.19,1.3.6.1.4.1.2011.2.6.7.1.1.2.1.20]
+      key: huawei.ma5800.board.walk
+      delay: 2m
+      history: '0'
+      value_type: TEXT
+      description: Master SNMP walk for MA5800 boards (HWMUSA-DEV-MIB).
+      tags:
+      - tag: component
+        value: raw
+    - uuid: 65f3a97d6544480eacbefd7bcbf7a944
+      name: 'SNMP walk: Physical interfaces'
+      type: SNMP_AGENT
+      snmp_oid: walk[1.3.6.1.2.1.31.1.1.1.1,1.3.6.1.2.1.31.1.1.1.18,1.3.6.1.2.1.2.2.1.7,1.3.6.1.2.1.2.2.1.8,1.3.6.1.2.1.31.1.1.1.15,1.3.6.1.2.1.31.1.1.1.6,1.3.6.1.2.1.31.1.1.1.10,1.3.6.1.2.1.2.2.1.13,1.3.6.1.2.1.2.2.1.14,1.3.6.1.2.1.2.2.1.19,1.3.6.1.2.1.2.2.1.20]
+      key: huawei.ma5800.interface.walk
+      delay: 1m
+      history: '0'
+      value_type: TEXT
+      description: Master SNMP walk for GPON and Ethernet interfaces.
+      tags:
+      - tag: component
+        value: raw
+    - uuid: 19a5a78861204c6d85f5df3a78064453
+      name: 'SNMP walk: ONT inventory'
+      type: SNMP_AGENT
+      snmp_oid: walk[1.3.6.1.4.1.2011.6.128.1.1.2.43.1.3,1.3.6.1.4.1.2011.6.128.1.1.2.43.1.9,1.3.6.1.2.1.31.1.1.1.1]
+      key: huawei.ma5800.ont.inventory.walk
+      delay: 15m
+      history: '0'
+      value_type: TEXT
+      description: Master walk for ONT serial/description and IF-MIB ifName correlation.
+      tags:
+      - tag: component
+        value: raw
+    - uuid: 6c64b452164b4b028e04225c78ebb452
+      name: 'SNMP walk: ONT status'
+      type: SNMP_AGENT
+      snmp_oid: walk[1.3.6.1.4.1.2011.6.128.1.1.2.46.1.15,1.3.6.1.4.1.2011.6.128.1.1.2.46.1.20,1.3.6.1.4.1.2011.6.128.1.1.2.46.1.22,1.3.6.1.4.1.2011.6.128.1.1.2.46.1.23,1.3.6.1.4.1.2011.6.128.1.1.2.46.1.24]
+      key: huawei.ma5800.ont.state.walk
+      delay: 1m
+      history: '0'
+      value_type: TEXT
+      description: Master walk for ONT run status, distance and last state-change information.
+      tags:
+      - tag: component
+        value: raw
+    - uuid: 1342fce4cd384c618f805d15ee85897e
+      name: ONTs online
+      type: DEPENDENT
+      key: huawei.ma5800.ont.online.count
+      master_item:
+        key: huawei.ma5800.ont.state.walk
+      preprocessing:
+      - type: JAVASCRIPT
+        parameters:
+        - |-
+          var re = /^\.?1\.3\.6\.1\.4\.1\.2011\.6\.128\.1\.1\.2\.46\.1\.15\.\d+\.\d+\s*=\s*(?:INTEGER:\s*)?(-?\d+)/gm;
+          var m, n = 0;
+          while ((m = re.exec(String(value))) !== null) {
+              if (Number(m[1]) === 1) n++;
+          }
+          return n;
+      tags:
+      - tag: component
+        value: ont
+    - uuid: e3aef266121f40c6b3a67287b047da80
+      name: ONTs offline
+      type: DEPENDENT
+      key: huawei.ma5800.ont.offline.count
+      master_item:
+        key: huawei.ma5800.ont.state.walk
+      preprocessing:
+      - type: JAVASCRIPT
+        parameters:
+        - |-
+          var re = /^\.?1\.3\.6\.1\.4\.1\.2011\.6\.128\.1\.1\.2\.46\.1\.15\.\d+\.\d+\s*=\s*(?:INTEGER:\s*)?(-?\d+)/gm;
+          var m, n = 0;
+          while ((m = re.exec(String(value))) !== null) {
+              if (Number(m[1]) === 2) n++;
+          }
+          return n;
+      tags:
+      - tag: component
+        value: ont
+    discovery_rules:
+    - uuid: 0b05d82174ca4592920b91abc8d87482
+      name: 'Huawei MA5800: Board discovery'
+      type: DEPENDENT
+      key: huawei.ma5800.board.discovery
+      master_item:
+        key: huawei.ma5800.board.walk
+      description: Discovers MA5800 boards using HWMUSA-DEV-MIB. Index format is frame.slot.
+      item_prototypes:
+      - uuid: f50d6ebd296a42f59adb990acfa9def3
+        name: 'Board {#SNMPINDEX}: Model'
+        type: DEPENDENT
+        key: huawei.ma5800.board.model[{#SNMPINDEX}]
+        value_type: CHAR
+        master_item:
+          key: huawei.ma5800.board.walk
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.2.6.7.1.1.2.1.7.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1d
+        tags:
+        - tag: component
+          value: hardware
+        - tag: board
+          value: '{#BOARD}'
+      - uuid: aeb5a454ce384b4fa12ba81d3643f857
+        name: 'Board {#SNMPINDEX} {#BOARD}: Online state'
+        type: DEPENDENT
+        key: huawei.ma5800.board.status[{#SNMPINDEX}]
+        valuemap:
+          name: Huawei MA5800 board online state
+        master_item:
+          key: huawei.ma5800.board.walk
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.2.6.7.1.1.2.1.8.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 6h
+        tags:
+        - tag: component
+          value: hardware
+        - tag: board
+          value: '{#BOARD}'
+      - uuid: 9ca77642562d426292ff09e6b27c87d3
+        name: 'Board {#SNMPINDEX} {#BOARD}: CPU utilization'
+        type: DEPENDENT
+        key: huawei.ma5800.board.cpu[{#SNMPINDEX}]
+        units: '%'
+        master_item:
+          key: huawei.ma5800.board.walk
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.2.6.7.1.1.2.1.5.{#SNMPINDEX}
+          - '0'
+        - type: NOT_MATCHES_REGEX
+          parameters:
+          - ^-1$
+          error_handler: DISCARD_VALUE
+        tags:
+        - tag: component
+          value: cpu
+        - tag: board
+          value: '{#BOARD}'
+      - uuid: c2c2c0d0d900491ebc7d36f1f23f7027
+        name: 'Board {#SNMPINDEX} {#BOARD}: Memory utilization'
+        type: DEPENDENT
+        key: huawei.ma5800.board.memory[{#SNMPINDEX}]
+        units: '%'
+        master_item:
+          key: huawei.ma5800.board.walk
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.2.6.7.1.1.2.1.6.{#SNMPINDEX}
+          - '0'
+        - type: NOT_MATCHES_REGEX
+          parameters:
+          - ^-1$
+          error_handler: DISCARD_VALUE
+        tags:
+        - tag: component
+          value: memory
+        - tag: board
+          value: '{#BOARD}'
+      - uuid: 82f8f652ba814bac8549882c6f14596a
+        name: 'Board {#SNMPINDEX} {#BOARD}: Temperature'
+        type: DEPENDENT
+        key: huawei.ma5800.board.temperature[{#SNMPINDEX}]
+        units: °C
+        master_item:
+          key: huawei.ma5800.board.walk
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.2.6.7.1.1.2.1.10.{#SNMPINDEX}
+          - '0'
+        - type: NOT_MATCHES_REGEX
+          parameters:
+          - ^(?:2147483647|-1)$
+          error_handler: DISCARD_VALUE
+        tags:
+        - tag: component
+          value: temperature
+        - tag: board
+          value: '{#BOARD}'
+        value_type: FLOAT
+      - uuid: 1f35f350cdce4f5dbe3d93a1f16caf9a
+        name: 'Board {#SNMPINDEX} {#BOARD}: RAM total'
+        type: DEPENDENT
+        key: huawei.ma5800.board.ram.total[{#SNMPINDEX}]
+        units: B
+        master_item:
+          key: huawei.ma5800.board.walk
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.2.6.7.1.1.2.1.18.{#SNMPINDEX}
+          - '0'
+        - type: MATCHES_REGEX
+          parameters:
+          - ^[1-9][0-9]*$
+          error_handler: DISCARD_VALUE
+        tags:
+        - tag: component
+          value: memory
+        - tag: board
+          value: '{#BOARD}'
+      - uuid: 9cd8e92474d94abba9bb40d5b74306d5
+        name: 'Board {#SNMPINDEX} {#BOARD}: RAM used'
+        type: DEPENDENT
+        key: huawei.ma5800.board.ram.used[{#SNMPINDEX}]
+        units: B
+        master_item:
+          key: huawei.ma5800.board.walk
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.2.6.7.1.1.2.1.19.{#SNMPINDEX}
+          - '0'
+        - type: MATCHES_REGEX
+          parameters:
+          - ^[1-9][0-9]*$
+          error_handler: DISCARD_VALUE
+        tags:
+        - tag: component
+          value: memory
+        - tag: board
+          value: '{#BOARD}'
+      - uuid: b5c88d86a46c46078ac6df4bed274594
+        name: 'Board {#SNMPINDEX} {#BOARD}: RAM free'
+        type: DEPENDENT
+        key: huawei.ma5800.board.ram.free[{#SNMPINDEX}]
+        units: B
+        master_item:
+          key: huawei.ma5800.board.walk
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.2.6.7.1.1.2.1.20.{#SNMPINDEX}
+          - '0'
+        - type: MATCHES_REGEX
+          parameters:
+          - ^[1-9][0-9]*$
+          error_handler: DISCARD_VALUE
+        tags:
+        - tag: component
+          value: memory
+        - tag: board
+          value: '{#BOARD}'
+      graph_prototypes:
+      - uuid: 1cb5b59be9e84032afbd4f836059a929
+        name: 'Board {#SNMPINDEX} {#BOARD}: CPU and memory'
+        graph_items:
+        - color: 199C0D
+          item:
+            host: Huawei MA5800-X2 Emerson.Ricardo
+            key: huawei.ma5800.board.cpu[{#SNMPINDEX}]
+        - sortorder: '1'
+          color: F63100
+          item:
+            host: Huawei MA5800-X2 Emerson.Ricardo
+            key: huawei.ma5800.board.memory[{#SNMPINDEX}]
+      - uuid: e1eda1f94ac24bbb857f78e42853236e
+        name: 'Board {#SNMPINDEX} {#BOARD}: Temperature'
+        graph_items:
+        - color: 199C0D
+          item:
+            host: Huawei MA5800-X2 Emerson.Ricardo
+            key: huawei.ma5800.board.temperature[{#SNMPINDEX}]
+      preprocessing:
+      - type: SNMP_WALK_TO_JSON
+        parameters:
+        - '{#BOARD}'
+        - 1.3.6.1.4.1.2011.2.6.7.1.1.2.1.7
+        - '0'
+        - '{#BOARDSTATUS}'
+        - 1.3.6.1.4.1.2011.2.6.7.1.1.2.1.8
+        - '0'
+      - type: DISCARD_UNCHANGED_HEARTBEAT
+        parameters:
+        - 1h
+      trigger_prototypes:
+      - uuid: 70fe6ecfa9ea47fc93603ffa838649b7
+        expression: '{$HUAWEI.BOARD.STATUS.TRIGGER:"{#SNMPINDEX}"}=1 and last(/Huawei MA5800-X2 Emerson.Ricardo/huawei.ma5800.board.status[{#SNMPINDEX}])<>1'
+        name: 'Huawei MA5800-X2: Board {#SNMPINDEX} {#BOARD} não está online'
+        opdata: 'Estado: {ITEM.LASTVALUE1}'
+        priority: HIGH
+        tags:
+        - tag: scope
+          value: availability
+      - uuid: 0c5e269a34e14e1e82653b6a1e90db27
+        expression: avg(/Huawei MA5800-X2 Emerson.Ricardo/huawei.ma5800.board.cpu[{#SNMPINDEX}],5m)>{$HUAWEI.BOARD.CPU.WARN}
+        name: 'Huawei MA5800-X2: CPU elevada na board {#SNMPINDEX} {#BOARD}'
+        opdata: 'CPU: {ITEM.LASTVALUE1}'
+        priority: WARNING
+        tags:
+        - tag: scope
+          value: performance
+      - uuid: 1d891fe3629f42a49d5164686fecaddf
+        expression: avg(/Huawei MA5800-X2 Emerson.Ricardo/huawei.ma5800.board.memory[{#SNMPINDEX}],5m)>{$HUAWEI.BOARD.MEM.WARN}
+        name: 'Huawei MA5800-X2: Memória elevada na board {#SNMPINDEX} {#BOARD}'
+        opdata: 'Memória: {ITEM.LASTVALUE1}'
+        priority: WARNING
+        tags:
+        - tag: scope
+          value: performance
+      - uuid: 599a7ed35fc54eec83e1242370a8b7cf
+        expression: avg(/Huawei MA5800-X2 Emerson.Ricardo/huawei.ma5800.board.temperature[{#SNMPINDEX}],5m)>{$HUAWEI.BOARD.TEMP.WARN}
+        name: 'Huawei MA5800-X2: Temperatura elevada na board {#SNMPINDEX} {#BOARD}'
+        opdata: 'Temperatura: {ITEM.LASTVALUE1}'
+        priority: WARNING
+        tags:
+        - tag: scope
+          value: performance
+    - uuid: 10ec64087ce0436995e3a74bb5804145
+      name: 'Huawei MA5800: Physical interface discovery'
+      type: DEPENDENT
+      key: huawei.ma5800.if.discovery
+      master_item:
+        key: huawei.ma5800.interface.walk
+      filter:
+        conditions:
+        - macro: '{#IFNAME}'
+          value: ^(GPON |ethernet)
+      description: Discovers GPON and physical Ethernet interfaces. VLAN/loopback interfaces are intentionally excluded.
+      item_prototypes:
+      - uuid: 1cf7f95893bb463eb0b3a685fa91ae40
+        name: 'Interface {#IFNAME}: Alias'
+        type: DEPENDENT
+        key: huawei.ma5800.if.alias[{#SNMPINDEX}]
+        value_type: CHAR
+        master_item:
+          key: huawei.ma5800.interface.walk
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.2.1.31.1.1.1.18.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 12h
+        tags:
+        - tag: component
+          value: network
+        - tag: interface
+          value: '{#IFNAME}'
+      - uuid: b382a804b07f46e0bc03eb30c626ae81
+        name: 'Interface {#IFNAME}: Admin status'
+        type: DEPENDENT
+        key: huawei.ma5800.if.admin[{#SNMPINDEX}]
+        valuemap:
+          name: IF-MIB::ifAdminStatus
+        master_item:
+          key: huawei.ma5800.interface.walk
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.2.1.2.2.1.7.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 6h
+        tags:
+        - tag: component
+          value: network
+        - tag: interface
+          value: '{#IFNAME}'
+      - uuid: c0c1cd6f7cd7489f8929b80bf7f1aa93
+        name: 'Interface {#IFNAME}: Operational status'
+        type: DEPENDENT
+        key: huawei.ma5800.if.oper[{#SNMPINDEX}]
+        valuemap:
+          name: IF-MIB::ifOperStatus
+        master_item:
+          key: huawei.ma5800.interface.walk
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.2.1.2.2.1.8.{#SNMPINDEX}
+          - '0'
+        tags:
+        - tag: component
+          value: network
+        - tag: interface
+          value: '{#IFNAME}'
+      - uuid: 8e9a7471d5f84af6bf76dc5d70361ea1
+        name: 'Interface {#IFNAME}: Speed'
+        type: DEPENDENT
+        key: huawei.ma5800.if.speed[{#SNMPINDEX}]
+        units: bps
+        master_item:
+          key: huawei.ma5800.interface.walk
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.2.1.31.1.1.1.15.{#SNMPINDEX}
+          - '0'
+        - type: MULTIPLIER
+          parameters:
+          - '1000000'
+        tags:
+        - tag: component
+          value: network
+        - tag: interface
+          value: '{#IFNAME}'
+      - uuid: e3bd8a7dd55545ea9571d8e3e1c64d35
+        name: 'Interface {#IFNAME}: Bits received'
+        type: DEPENDENT
+        key: huawei.ma5800.if.in.bits[{#SNMPINDEX}]
+        units: bps
+        master_item:
+          key: huawei.ma5800.interface.walk
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.2.1.31.1.1.1.6.{#SNMPINDEX}
+          - '0'
+        - type: CHANGE_PER_SECOND
+          parameters:
+          - ''
+        - type: MULTIPLIER
+          parameters:
+          - '8'
+        tags:
+        - tag: component
+          value: network
+        - tag: interface
+          value: '{#IFNAME}'
+      - uuid: 36e6e490bd1d400ba6915808eeae7119
+        name: 'Interface {#IFNAME}: Bits sent'
+        type: DEPENDENT
+        key: huawei.ma5800.if.out.bits[{#SNMPINDEX}]
+        units: bps
+        master_item:
+          key: huawei.ma5800.interface.walk
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.2.1.31.1.1.1.10.{#SNMPINDEX}
+          - '0'
+        - type: CHANGE_PER_SECOND
+          parameters:
+          - ''
+        - type: MULTIPLIER
+          parameters:
+          - '8'
+        tags:
+        - tag: component
+          value: network
+        - tag: interface
+          value: '{#IFNAME}'
+      - uuid: 15ef1dc366c449bd83d4f9ce9f7dfea3
+        name: 'Interface {#IFNAME}: Inbound errors'
+        type: DEPENDENT
+        key: huawei.ma5800.if.in.errors[{#SNMPINDEX}]
+        value_type: FLOAT
+        units: pps
+        master_item:
+          key: huawei.ma5800.interface.walk
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.2.1.2.2.1.14.{#SNMPINDEX}
+          - '0'
+        - type: CHANGE_PER_SECOND
+          parameters:
+          - ''
+        tags:
+        - tag: component
+          value: network
+        - tag: interface
+          value: '{#IFNAME}'
+      - uuid: 6d402236e6d54a29a4543a8c83690ce3
+        name: 'Interface {#IFNAME}: Outbound errors'
+        type: DEPENDENT
+        key: huawei.ma5800.if.out.errors[{#SNMPINDEX}]
+        value_type: FLOAT
+        units: pps
+        master_item:
+          key: huawei.ma5800.interface.walk
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.2.1.2.2.1.20.{#SNMPINDEX}
+          - '0'
+        - type: CHANGE_PER_SECOND
+          parameters:
+          - ''
+        tags:
+        - tag: component
+          value: network
+        - tag: interface
+          value: '{#IFNAME}'
+      - uuid: 72b8660bedde43b0b15f39fa5833240e
+        name: 'Interface {#IFNAME}: Inbound discards'
+        type: DEPENDENT
+        key: huawei.ma5800.if.in.discards[{#SNMPINDEX}]
+        value_type: FLOAT
+        units: pps
+        master_item:
+          key: huawei.ma5800.interface.walk
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.2.1.2.2.1.13.{#SNMPINDEX}
+          - '0'
+        - type: CHANGE_PER_SECOND
+          parameters:
+          - ''
+        tags:
+        - tag: component
+          value: network
+        - tag: interface
+          value: '{#IFNAME}'
+      - uuid: cb3fd233d6e147c5b74003fbe7107b5f
+        name: 'Interface {#IFNAME}: Outbound discards'
+        type: DEPENDENT
+        key: huawei.ma5800.if.out.discards[{#SNMPINDEX}]
+        value_type: FLOAT
+        units: pps
+        master_item:
+          key: huawei.ma5800.interface.walk
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.2.1.2.2.1.19.{#SNMPINDEX}
+          - '0'
+        - type: CHANGE_PER_SECOND
+          parameters:
+          - ''
+        tags:
+        - tag: component
+          value: network
+        - tag: interface
+          value: '{#IFNAME}'
+      graph_prototypes:
+      - uuid: 92331a1444244f3da7a6e8c03a17e3e7
+        name: 'Interface {#IFNAME}: Network traffic'
+        graph_items:
+        - drawtype: GRADIENT_LINE
+          color: 199C0D
+          item:
+            host: Huawei MA5800-X2 Emerson.Ricardo
+            key: huawei.ma5800.if.in.bits[{#SNMPINDEX}]
+        - sortorder: '1'
+          drawtype: BOLD_LINE
+          color: F63100
+          item:
+            host: Huawei MA5800-X2 Emerson.Ricardo
+            key: huawei.ma5800.if.out.bits[{#SNMPINDEX}]
+      preprocessing:
+      - type: SNMP_WALK_TO_JSON
+        parameters:
+        - '{#IFNAME}'
+        - 1.3.6.1.2.1.31.1.1.1.1
+        - '0'
+        - '{#IFALIAS}'
+        - 1.3.6.1.2.1.31.1.1.1.18
+        - '0'
+        - '{#IFADMINSTATUS}'
+        - 1.3.6.1.2.1.2.2.1.7
+        - '0'
+        - '{#IFOPERSTATUS}'
+        - 1.3.6.1.2.1.2.2.1.8
+        - '0'
+        - '{#IFHIGHSPEED}'
+        - 1.3.6.1.2.1.31.1.1.1.15
+        - '0'
+      - type: DISCARD_UNCHANGED_HEARTBEAT
+        parameters:
+        - 1h
+      trigger_prototypes:
+      - uuid: a9ddc02aa866444ba31f7cfeed076fb9
+        expression: '{$HUAWEI.IFCONTROL:"{#IFNAME}"}=1 and last(/Huawei MA5800-X2 Emerson.Ricardo/huawei.ma5800.if.oper[{#SNMPINDEX}])=2 and last(/Huawei MA5800-X2 Emerson.Ricardo/huawei.ma5800.if.oper[{#SNMPINDEX}],#2)=2'
+        recovery_expression: last(/Huawei MA5800-X2 Emerson.Ricardo/huawei.ma5800.if.oper[{#SNMPINDEX}])<>2 or {$HUAWEI.IFCONTROL:"{#IFNAME}"}=0
+        name: 'Huawei MA5800-X2: Interface {#IFNAME} está DOWN'
+        opdata: 'Status: {ITEM.LASTVALUE1}'
+        priority: HIGH
+        recovery_mode: RECOVERY_EXPRESSION
+        tags:
+        - tag: scope
+          value: availability
+    - uuid: eb35403fbe7746ee9d132717ab395241
+      name: 'Huawei MA5800: ONT discovery'
+      type: DEPENDENT
+      key: huawei.ma5800.ont.discovery
+      master_item:
+        key: huawei.ma5800.ont.inventory.walk
+      description: Discovers ONTs, correlates the composite ifIndex.ONT-ID with IF-MIB ifName and converts Huawei serial numbers.
+      item_prototypes:
+      - uuid: feeb096ce5864a7683de3625896880ee
+        name: 'ONT {#PON}/{#ONTID} {#ONTDESC}: Description'
+        type: DEPENDENT
+        key: huawei.ma5800.ont.description[{#SNMPINDEX}]
+        value_type: CHAR
+        master_item:
+          key: huawei.ma5800.ont.inventory.walk
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.6.128.1.1.2.43.1.9.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 12h
+        tags:
+        - tag: component
+          value: ont
+        - tag: pon
+          value: '{#PON}'
+        - tag: serial
+          value: '{#SERIAL}'
+      - uuid: b37b057912ef491dbcc1cd49b1c0fabf
+        name: 'ONT {#PON}/{#ONTID} {#ONTDESC}: Serial'
+        type: DEPENDENT
+        key: huawei.ma5800.ont.serial[{#SNMPINDEX}]
+        value_type: CHAR
+        master_item:
+          key: huawei.ma5800.ont.inventory.walk
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.6.128.1.1.2.43.1.3.{#SNMPINDEX}
+          - '0'
+        - type: JAVASCRIPT
+          parameters:
+          - |-
+            var s = String(value).trim();
+            var bytes = s.split(/\s+/).filter(function (x) { return /^[0-9A-Fa-f]{2}$/.test(x); });
+            if (bytes.length !== 8) {
+                return s;
+            }
+            var vendor = '';
+            for (var i = 0; i < 4; i++) {
+                var c = parseInt(bytes[i], 16);
+                vendor += (c >= 32 && c <= 126) ? String.fromCharCode(c) : bytes[i].toUpperCase();
+            }
+            return vendor + bytes.slice(4).join('').toUpperCase();
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1d
+        tags:
+        - tag: component
+          value: ont
+        - tag: pon
+          value: '{#PON}'
+        - tag: serial
+          value: '{#SERIAL}'
+      - uuid: 919e500ce56245ddb8ab078ac9f09849
+        name: 'ONT {#PON}/{#ONTID} {#ONTDESC}: Run status'
+        type: DEPENDENT
+        key: huawei.ma5800.ont.status[{#SNMPINDEX}]
+        valuemap:
+          name: Huawei GPON ONT run status
+        master_item:
+          key: huawei.ma5800.ont.state.walk
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.6.128.1.1.2.46.1.15.{#SNMPINDEX}
+          - '0'
+        - type: NOT_MATCHES_REGEX
+          parameters:
+          - ^-1$
+          error_handler: DISCARD_VALUE
+        tags:
+        - tag: component
+          value: ont
+        - tag: pon
+          value: '{#PON}'
+        - tag: serial
+          value: '{#SERIAL}'
+      - uuid: a1dccbfb7da444a79156e17e19f9e769
+        name: 'ONT {#PON}/{#ONTID} {#ONTDESC}: Distance'
+        type: DEPENDENT
+        key: huawei.ma5800.ont.distance[{#SNMPINDEX}]
+        units: m
+        master_item:
+          key: huawei.ma5800.ont.state.walk
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.6.128.1.1.2.46.1.20.{#SNMPINDEX}
+          - '0'
+        - type: NOT_MATCHES_REGEX
+          parameters:
+          - ^-1$
+          error_handler: DISCARD_VALUE
+        tags:
+        - tag: component
+          value: ont
+        - tag: pon
+          value: '{#PON}'
+        - tag: serial
+          value: '{#SERIAL}'
+      - uuid: b8c2cdb6f3f14cc6833426ac10e2df7f
+        name: 'ONT {#PON}/{#ONTID} {#ONTDESC}: Last up'
+        type: DEPENDENT
+        key: huawei.ma5800.ont.lastup[{#SNMPINDEX}]
+        value_type: CHAR
+        master_item:
+          key: huawei.ma5800.ont.state.walk
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.6.128.1.1.2.46.1.22.{#SNMPINDEX}
+          - '0'
+        - type: JAVASCRIPT
+          parameters:
+          - |-
+            var s = String(value).trim();
+            var bytes = s.split(/\s+/).filter(function (x) { return /^[0-9A-Fa-f]{2}$/.test(x); });
+            if (bytes.length < 8) {
+                return s;
+            }
+            var b = bytes.map(function (x) { return parseInt(x, 16); });
+            var allzero = true;
+            for (var i = 0; i < 8; i++) {
+                if (b[i] !== 0) { allzero = false; break; }
+            }
+            if (allzero) {
+                return 'never';
+            }
+            function p2(n) { return (n < 10 ? '0' : '') + n; }
+            var year = b[0] * 256 + b[1];
+            var out = year + '-' + p2(b[2]) + '-' + p2(b[3]) + ' ' +
+                      p2(b[4]) + ':' + p2(b[5]) + ':' + p2(b[6]);
+            if (bytes.length >= 11 && (b[8] === 0x2B || b[8] === 0x2D)) {
+                out += ' ' + String.fromCharCode(b[8]) + p2(b[9]) + ':' + p2(b[10]);
+            }
+            return out;
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1h
+        tags:
+        - tag: component
+          value: ont
+        - tag: pon
+          value: '{#PON}'
+      - uuid: 5808f1d1b5804a11bde90f97db0a71f2
+        name: 'ONT {#PON}/{#ONTID} {#ONTDESC}: Last down'
+        type: DEPENDENT
+        key: huawei.ma5800.ont.lastdown[{#SNMPINDEX}]
+        value_type: CHAR
+        master_item:
+          key: huawei.ma5800.ont.state.walk
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.6.128.1.1.2.46.1.23.{#SNMPINDEX}
+          - '0'
+        - type: JAVASCRIPT
+          parameters:
+          - |-
+            var s = String(value).trim();
+            var bytes = s.split(/\s+/).filter(function (x) { return /^[0-9A-Fa-f]{2}$/.test(x); });
+            if (bytes.length < 8) {
+                return s;
+            }
+            var b = bytes.map(function (x) { return parseInt(x, 16); });
+            var allzero = true;
+            for (var i = 0; i < 8; i++) {
+                if (b[i] !== 0) { allzero = false; break; }
+            }
+            if (allzero) {
+                return 'never';
+            }
+            function p2(n) { return (n < 10 ? '0' : '') + n; }
+            var year = b[0] * 256 + b[1];
+            var out = year + '-' + p2(b[2]) + '-' + p2(b[3]) + ' ' +
+                      p2(b[4]) + ':' + p2(b[5]) + ':' + p2(b[6]);
+            if (bytes.length >= 11 && (b[8] === 0x2B || b[8] === 0x2D)) {
+                out += ' ' + String.fromCharCode(b[8]) + p2(b[9]) + ':' + p2(b[10]);
+            }
+            return out;
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1h
+        tags:
+        - tag: component
+          value: ont
+        - tag: pon
+          value: '{#PON}'
+      - uuid: e3403259f509416a83d2d27d16138d75
+        name: 'ONT {#PON}/{#ONTID} {#ONTDESC}: Last down cause'
+        type: DEPENDENT
+        key: huawei.ma5800.ont.lastdowncause[{#SNMPINDEX}]
+        valuemap:
+          name: Huawei GPON ONT last down cause
+        master_item:
+          key: huawei.ma5800.ont.state.walk
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.6.128.1.1.2.46.1.24.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1h
+        - type: NOT_MATCHES_REGEX
+          parameters:
+          - ^-1$
+          error_handler: DISCARD_VALUE
+        tags:
+        - tag: component
+          value: ont
+        - tag: pon
+          value: '{#PON}'
+      - uuid: e187028873f442dea2f4ef9a4cb9b8d6
+        name: 'ONT {#PON}/{#ONTID} {#ONTDESC}: Temperature'
+        type: SNMP_AGENT
+        key: huawei.ma5800.ont.temperature[{#SNMPINDEX}]
+        units: °C
+        preprocessing:
+        - type: CHECK_NOT_SUPPORTED
+          parameters:
+          - '-1'
+          error_handler: DISCARD_VALUE
+        - type: NOT_MATCHES_REGEX
+          parameters:
+          - ^(?:2147483647|-1)$
+          error_handler: DISCARD_VALUE
+        tags:
+        - tag: component
+          value: ont-optics
+        - tag: pon
+          value: '{#PON}'
+        - tag: serial
+          value: '{#SERIAL}'
+        snmp_oid: get[1.3.6.1.4.1.2011.6.128.1.1.2.51.1.1.{#SNMPINDEX}]
+        delay: 10m
+        value_type: FLOAT
+      - uuid: 523659c596ea442991072854f4a73421
+        name: 'ONT {#PON}/{#ONTID} {#ONTDESC}: Laser bias'
+        type: SNMP_AGENT
+        key: huawei.ma5800.ont.bias[{#SNMPINDEX}]
+        units: mA
+        preprocessing:
+        - type: CHECK_NOT_SUPPORTED
+          parameters:
+          - '-1'
+          error_handler: DISCARD_VALUE
+        - type: NOT_MATCHES_REGEX
+          parameters:
+          - ^(?:2147483647|-1)$
+          error_handler: DISCARD_VALUE
+        tags:
+        - tag: component
+          value: ont-optics
+        - tag: pon
+          value: '{#PON}'
+        snmp_oid: get[1.3.6.1.4.1.2011.6.128.1.1.2.51.1.2.{#SNMPINDEX}]
+        delay: 10m
+      - uuid: 752cd8e67907453d8545a381d2c4594a
+        name: 'ONT {#PON}/{#ONTID} {#ONTDESC}: TX power'
+        type: SNMP_AGENT
+        key: huawei.ma5800.ont.tx[{#SNMPINDEX}]
+        value_type: FLOAT
+        units: dBm
+        preprocessing:
+        - type: CHECK_NOT_SUPPORTED
+          parameters:
+          - '-1'
+          error_handler: DISCARD_VALUE
+        - type: NOT_MATCHES_REGEX
+          parameters:
+          - ^(?:2147483647|-1)$
+          error_handler: DISCARD_VALUE
+        - type: MULTIPLIER
+          parameters:
+          - '0.01'
+        tags:
+        - tag: component
+          value: ont-optics
+        - tag: pon
+          value: '{#PON}'
+        snmp_oid: get[1.3.6.1.4.1.2011.6.128.1.1.2.51.1.3.{#SNMPINDEX}]
+        delay: 5m
+      - uuid: 8ef48e84d5a2442d8f74d1b849a289c5
+        name: 'ONT {#PON}/{#ONTID} {#ONTDESC}: RX power'
+        type: SNMP_AGENT
+        key: huawei.ma5800.ont.rx[{#SNMPINDEX}]
+        value_type: FLOAT
+        units: dBm
+        preprocessing:
+        - type: CHECK_NOT_SUPPORTED
+          parameters:
+          - '-1'
+          error_handler: DISCARD_VALUE
+        - type: NOT_MATCHES_REGEX
+          parameters:
+          - ^(?:2147483647|-1)$
+          error_handler: DISCARD_VALUE
+        - type: MULTIPLIER
+          parameters:
+          - '0.01'
+        tags:
+        - tag: component
+          value: ont-optics
+        - tag: pon
+          value: '{#PON}'
+        - tag: serial
+          value: '{#SERIAL}'
+        snmp_oid: get[1.3.6.1.4.1.2011.6.128.1.1.2.51.1.4.{#SNMPINDEX}]
+        delay: 5m
+      - uuid: cec45f62246d4a8c8b7fc36a4fa09419
+        name: 'ONT {#PON}/{#ONTID} {#ONTDESC}: Voltage'
+        type: SNMP_AGENT
+        key: huawei.ma5800.ont.voltage[{#SNMPINDEX}]
+        value_type: FLOAT
+        units: V
+        preprocessing:
+        - type: CHECK_NOT_SUPPORTED
+          parameters:
+          - '-1'
+          error_handler: DISCARD_VALUE
+        - type: NOT_MATCHES_REGEX
+          parameters:
+          - ^(?:2147483647|-1)$
+          error_handler: DISCARD_VALUE
+        - type: MULTIPLIER
+          parameters:
+          - '0.001'
+        tags:
+        - tag: component
+          value: ont-optics
+        - tag: pon
+          value: '{#PON}'
+        snmp_oid: get[1.3.6.1.4.1.2011.6.128.1.1.2.51.1.5.{#SNMPINDEX}]
+        delay: 10m
+      - uuid: 65bd65856cb4492fa8757e49e5385c37
+        name: 'ONT {#PON}/{#ONTID} {#ONTDESC}: RX seen by OLT'
+        type: SNMP_AGENT
+        key: huawei.ma5800.ont.olt_rx[{#SNMPINDEX}]
+        value_type: FLOAT
+        units: dBm
+        preprocessing:
+        - type: CHECK_NOT_SUPPORTED
+          parameters:
+          - '-1'
+          error_handler: DISCARD_VALUE
+        - type: NOT_MATCHES_REGEX
+          parameters:
+          - ^(?:2147483647|-1)$
+          error_handler: DISCARD_VALUE
+        - type: JAVASCRIPT
+          parameters:
+          - |-
+            var n = Number(value);
+            return (n - 10000) / 100;
+        tags:
+        - tag: component
+          value: ont-optics
+        - tag: pon
+          value: '{#PON}'
+        - tag: serial
+          value: '{#SERIAL}'
+        snmp_oid: get[1.3.6.1.4.1.2011.6.128.1.1.2.51.1.6.{#SNMPINDEX}]
+        delay: 5m
+      graph_prototypes:
+      - uuid: 266dc1a519074629ae60b0d04c63d09f
+        name: 'ONT {#PON}/{#ONTID} {#ONTDESC}: Optical power'
+        graph_items:
+        - color: 199C0D
+          item:
+            host: Huawei MA5800-X2 Emerson.Ricardo
+            key: huawei.ma5800.ont.rx[{#SNMPINDEX}]
+        - sortorder: '1'
+          color: F63100
+          item:
+            host: Huawei MA5800-X2 Emerson.Ricardo
+            key: huawei.ma5800.ont.tx[{#SNMPINDEX}]
+        - sortorder: '2'
+          color: 00611C
+          item:
+            host: Huawei MA5800-X2 Emerson.Ricardo
+            key: huawei.ma5800.ont.olt_rx[{#SNMPINDEX}]
+      - uuid: a8429acebdd8499db48c79b87350bb12
+        name: 'ONT {#PON}/{#ONTID} {#ONTDESC}: Temperature'
+        graph_items:
+        - color: 199C0D
+          item:
+            host: Huawei MA5800-X2 Emerson.Ricardo
+            key: huawei.ma5800.ont.temperature[{#SNMPINDEX}]
+      preprocessing:
+      - type: JAVASCRIPT
+        parameters:
+        - |-
+          var P_IFNAME = '.1.3.6.1.2.1.31.1.1.1.1.';
+          var P_DESC   = '.1.3.6.1.4.1.2011.6.128.1.1.2.43.1.9.';
+          var P_SERIAL = '.1.3.6.1.4.1.2011.6.128.1.1.2.43.1.3.';
+
+          var ifNames = {};
+          var descs = {};
+          var serials = {};
+
+          function cleanString(v) {
+              v = String(v).trim();
+              if (v.length >= 2 && v.charAt(0) === '"' && v.charAt(v.length - 1) === '"') {
+                  v = v.substring(1, v.length - 1);
+                  v = v.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+              }
+              return v;
+          }
+
+          function serialFromHex(v) {
+              var bytes = String(v).trim().split(/\s+/).filter(function (x) {
+                  return /^[0-9A-Fa-f]{2}$/.test(x);
+              });
+              if (bytes.length !== 8) {
+                  return cleanString(v);
+              }
+              var vendor = '';
+              for (var i = 0; i < 4; i++) {
+                  var c = parseInt(bytes[i], 16);
+                  vendor += (c >= 32 && c <= 126) ? String.fromCharCode(c) : bytes[i].toUpperCase();
+              }
+              return vendor + bytes.slice(4).join('').toUpperCase();
+          }
+
+          String(value).split('\n').forEach(function (line) {
+              var m = line.match(/^(\.?\d+(?:\.\d+)*)\s*=\s*(?:([A-Za-z0-9-]+):\s*)?(.*)$/);
+              if (!m) return;
+
+              var oid = m[1];
+              if (oid.charAt(0) !== '.') oid = '.' + oid;
+
+              var type = m[2] || '';
+              var raw = m[3] || '';
+
+              if (oid.indexOf(P_IFNAME) === 0) {
+                  ifNames[oid.substring(P_IFNAME.length)] = cleanString(raw);
+              }
+              else if (oid.indexOf(P_DESC) === 0) {
+                  descs[oid.substring(P_DESC.length)] = cleanString(raw);
+              }
+              else if (oid.indexOf(P_SERIAL) === 0) {
+                  serials[oid.substring(P_SERIAL.length)] =
+                      (type === 'Hex-STRING') ? serialFromHex(raw) : cleanString(raw);
+              }
+          });
+
+          var keys = {};
+          Object.keys(descs).forEach(function (k) { keys[k] = true; });
+          Object.keys(serials).forEach(function (k) { keys[k] = true; });
+
+          var out = [];
+          Object.keys(keys).sort(function (a, b) {
+              var aa = a.split('.').map(Number);
+              var bb = b.split('.').map(Number);
+              for (var i = 0; i < Math.max(aa.length, bb.length); i++) {
+                  var av = aa[i] || 0;
+                  var bv = bb[i] || 0;
+                  if (av !== bv) return av - bv;
+              }
+              return 0;
+          }).forEach(function (idx) {
+              var p = idx.split('.');
+              if (p.length < 2) return;
+
+              var ifIndex = p[0];
+              var ontId = p.slice(1).join('.');
+              var pon = ifNames[ifIndex] || ('ifIndex ' + ifIndex);
+
+              out.push({
+                  '{#SNMPINDEX}': idx,
+                  '{#IFINDEX}': ifIndex,
+                  '{#ONTID}': ontId,
+                  '{#PON}': pon,
+                  '{#ONTDESC}': descs[idx] || '',
+                  '{#SERIAL}': serials[idx] || ''
+              });
+          });
+
+          return JSON.stringify(out);
+      - type: DISCARD_UNCHANGED_HEARTBEAT
+        parameters:
+        - 1h
+      trigger_prototypes:
+      - uuid: f232cf593270493db99206aa98298502
+        expression: '{$HUAWEI.ONT.DOWN.TRIGGER:"{#SERIAL}"}=1 and last(/Huawei MA5800-X2 Emerson.Ricardo/huawei.ma5800.ont.status[{#SNMPINDEX}])=2 and last(/Huawei MA5800-X2 Emerson.Ricardo/huawei.ma5800.ont.status[{#SNMPINDEX}],#2)=2'
+        recovery_expression: last(/Huawei MA5800-X2 Emerson.Ricardo/huawei.ma5800.ont.status[{#SNMPINDEX}])=1 or {$HUAWEI.ONT.DOWN.TRIGGER:"{#SERIAL}"}=0
+        name: 'Huawei MA5800-X2: ONT {#PON}/{#ONTID} {#ONTDESC} está DOWN'
+        opdata: 'Status: {ITEM.LASTVALUE1}'
+        priority: WARNING
+        recovery_mode: RECOVERY_EXPRESSION
+        tags:
+        - tag: scope
+          value: availability
+        - tag: pon
+          value: '{#PON}'
+      - uuid: b172fc2e10ab4e2594e11a071bd4c57a
+        expression: last(/Huawei MA5800-X2 Emerson.Ricardo/huawei.ma5800.ont.status[{#SNMPINDEX}])=1 and avg(/Huawei MA5800-X2 Emerson.Ricardo/huawei.ma5800.ont.temperature[{#SNMPINDEX}],10m)>{$HUAWEI.ONT.TEMP.WARN}
+        name: 'Huawei MA5800-X2: Temperatura elevada na ONT {#PON}/{#ONTID} {#ONTDESC}'
+        opdata: 'Temperatura: {ITEM.LASTVALUE1}'
+        priority: WARNING
+        tags:
+        - tag: scope
+          value: performance
+      - uuid: 55e21854f20844458b43ef138ea41180
+        expression: last(/Huawei MA5800-X2 Emerson.Ricardo/huawei.ma5800.ont.status[{#SNMPINDEX}])=1 and avg(/Huawei MA5800-X2 Emerson.Ricardo/huawei.ma5800.ont.rx[{#SNMPINDEX}],10m)<{$HUAWEI.ONT.RX.WARN} and avg(/Huawei MA5800-X2 Emerson.Ricardo/huawei.ma5800.ont.rx[{#SNMPINDEX}],10m)>={$HUAWEI.ONT.RX.CRIT}
+        name: 'Huawei MA5800-X2: RX baixo na ONT {#PON}/{#ONTID} {#ONTDESC}'
+        opdata: 'RX: {ITEM.LASTVALUE1}'
+        priority: WARNING
+        tags:
+        - tag: scope
+          value: performance
+      - uuid: 9c8077227169445785d8b21c920e3be2
+        expression: last(/Huawei MA5800-X2 Emerson.Ricardo/huawei.ma5800.ont.status[{#SNMPINDEX}])=1 and avg(/Huawei MA5800-X2 Emerson.Ricardo/huawei.ma5800.ont.rx[{#SNMPINDEX}],5m)<{$HUAWEI.ONT.RX.CRIT}
+        name: 'Huawei MA5800-X2: RX crítico na ONT {#PON}/{#ONTID} {#ONTDESC}'
+        opdata: 'RX: {ITEM.LASTVALUE1}'
+        priority: HIGH
+        tags:
+        - tag: scope
+          value: performance
+      - uuid: 035a2bed5ce944f392317725ab070b55
+        expression: last(/Huawei MA5800-X2 Emerson.Ricardo/huawei.ma5800.ont.status[{#SNMPINDEX}])=1 and avg(/Huawei MA5800-X2 Emerson.Ricardo/huawei.ma5800.ont.olt_rx[{#SNMPINDEX}],10m)<{$HUAWEI.ONT.OLT_RX.WARN} and avg(/Huawei MA5800-X2 Emerson.Ricardo/huawei.ma5800.ont.olt_rx[{#SNMPINDEX}],10m)>={$HUAWEI.ONT.OLT_RX.CRIT}
+        name: 'Huawei MA5800-X2: RX recebido pela OLT baixo - ONT {#PON}/{#ONTID} {#ONTDESC}'
+        opdata: 'OLT RX: {ITEM.LASTVALUE1}'
+        priority: WARNING
+        tags:
+        - tag: scope
+          value: performance
+      - uuid: 4a00cc35271140998b294c6c8b5dad4e
+        expression: last(/Huawei MA5800-X2 Emerson.Ricardo/huawei.ma5800.ont.status[{#SNMPINDEX}])=1 and avg(/Huawei MA5800-X2 Emerson.Ricardo/huawei.ma5800.ont.olt_rx[{#SNMPINDEX}],5m)<{$HUAWEI.ONT.OLT_RX.CRIT}
+        name: 'Huawei MA5800-X2: RX recebido pela OLT crítico - ONT {#PON}/{#ONTID} {#ONTDESC}'
+        opdata: 'OLT RX: {ITEM.LASTVALUE1}'
+        priority: HIGH
+        tags:
+        - tag: scope
+          value: performance
+    tags:
+    - tag: class
+      value: network
+    - tag: target
+      value: olt
+    - tag: vendor
+      value: Huawei
+    - tag: model
+      value: MA5800-X2
+    macros:
+    - macro: '{$ICMP_LOSS_WARN}'
+      value: '20'
+      description: Percentual de perda ICMP para alerta.
+    - macro: '{$ICMP_RESPONSE_TIME_WARN}'
+      value: '0.15'
+      description: RTT ICMP médio em segundos para alerta.
+    - macro: '{$SNMP.TIMEOUT}'
+      value: 5m
+      description: Janela do trigger de indisponibilidade SNMP.
+    - macro: '{$HUAWEI.BOARD.CPU.WARN}'
+      value: '80'
+      description: CPU (%) de board para alerta.
+    - macro: '{$HUAWEI.BOARD.MEM.WARN}'
+      value: '85'
+      description: Memória (%) de board para alerta.
+    - macro: '{$HUAWEI.BOARD.TEMP.WARN}'
+      value: '70'
+      description: Temperatura de board (°C) para alerta.
+    - macro: '{$HUAWEI.BOARD.STATUS.TRIGGER}'
+      value: '0'
+      description: '0 desabilita alerta de board offline por padrão. Use contexto, ex.: {$HUAWEI.BOARD.STATUS.TRIGGER:"0.1"}=1.'
+    - macro: '{$HUAWEI.IFCONTROL}'
+      value: '0'
+      description: '0 desabilita alerta de link por padrão. Habilite por contexto, ex.: {$HUAWEI.IFCONTROL:"ethernet0/3/0"}=1.'
+    - macro: '{$HUAWEI.ONT.DOWN.TRIGGER}'
+      value: '0'
+      description: 0 desabilita alerta de ONT DOWN por padrão. Habilite globalmente ou por serial usando contexto.
+    - macro: '{$HUAWEI.ONT.RX.WARN}'
+      value: '-25'
+      description: 'RX da ONT em dBm: limite de warning.'
+    - macro: '{$HUAWEI.ONT.RX.CRIT}'
+      value: '-27'
+      description: 'RX da ONT em dBm: limite crítico.'
+    - macro: '{$HUAWEI.ONT.OLT_RX.WARN}'
+      value: '-27'
+      description: 'RX da ONT visto pela OLT em dBm: limite de warning.'
+    - macro: '{$HUAWEI.ONT.OLT_RX.CRIT}'
+      value: '-30'
+      description: 'RX da ONT visto pela OLT em dBm: limite crítico.'
+    - macro: '{$HUAWEI.ONT.TEMP.WARN}'
+      value: '70'
+      description: Temperatura da ONT em °C para alerta.
+    valuemaps:
+    - uuid: dd2cd72571354820a5a51a46652252ea
+      name: Service state
+      mappings:
+      - value: '0'
+        newvalue: Down
+      - value: '1'
+        newvalue: Up
+    - uuid: 3b5219ec493e4f12bcafce1ddae0268b
+      name: Zabbix host availability
+      mappings:
+      - value: '0'
+        newvalue: Not available
+      - value: '1'
+        newvalue: Available
+      - value: '2'
+        newvalue: Unknown
+    - uuid: 56894bd0f03a49da983a36aa59770feb
+      name: Huawei MA5800 board online state
+      mappings:
+      - value: '1'
+        newvalue: Online
+      - value: '2'
+        newvalue: Offline
+      - value: '3'
+        newvalue: Fault/Unmanageable
+    - uuid: 6ce7979cc2264bdf91d2c1db2e86d6a4
+      name: IF-MIB::ifAdminStatus
+      mappings:
+      - value: '1'
+        newvalue: up
+      - value: '2'
+        newvalue: down
+      - value: '3'
+        newvalue: testing
+    - uuid: f159a9939cbb4e2790ebde77f1d7df91
+      name: IF-MIB::ifOperStatus
+      mappings:
+      - value: '1'
+        newvalue: up
+      - value: '2'
+        newvalue: down
+      - value: '3'
+        newvalue: testing
+      - value: '4'
+        newvalue: unknown
+      - value: '5'
+        newvalue: dormant
+      - value: '6'
+        newvalue: notPresent
+      - value: '7'
+        newvalue: lowerLayerDown
+    - uuid: 45934330782448b9b16eebc827794570
+      name: Huawei GPON ONT run status
+      mappings:
+      - value: '-1'
+        newvalue: invalid
+      - value: '1'
+        newvalue: UP
+      - value: '2'
+        newvalue: DOWN
+    - uuid: 13a11601adc7439bae0f8d366c98deb9
+      name: Huawei GPON ONT last down cause
+      mappings:
+      - value: '-1'
+        newvalue: invalid/query failed
+      - value: '1'
+        newvalue: LOS
+      - value: '2'
+        newvalue: LOSi/LOBi
+      - value: '3'
+        newvalue: LOFi
+      - value: '4'
+        newvalue: SFi
+      - value: '5'
+        newvalue: LOAi
+      - value: '6'
+        newvalue: LOAMi
+      - value: '7'
+        newvalue: Deactivate ONT failed
+      - value: '8'
+        newvalue: Deactivate ONT success
+      - value: '9'
+        newvalue: Reset ONT
+      - value: '10'
+        newvalue: Re-register ONT
+      - value: '11'
+        newvalue: Pop-up fail
+      - value: '13'
+        newvalue: Dying Gasp
+      - value: '15'
+        newvalue: LOKi
+      - value: '18'
+        newvalue: Deactivated due to ring
+      - value: '30'
+        newvalue: ONT optical module shutdown
+      - value: '31'
+        newvalue: ONT command reset
+      - value: '32'
+        newvalue: ONT reset button
+      - value: '33'
+        newvalue: ONT software reset
+      - value: '34'
+        newvalue: Broadcast attack
+      - value: '35'
+        newvalue: Operator check failed
+      - value: '37'
+        newvalue: Rogue ONT detected by itself
