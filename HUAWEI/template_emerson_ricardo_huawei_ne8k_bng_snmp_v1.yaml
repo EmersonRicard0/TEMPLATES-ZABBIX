@@ -1,0 +1,1630 @@
+zabbix_export:
+  version: '7.4'
+  template_groups:
+  - uuid: 2ec3974895bc40a6abed09a87c2e6cd1
+    name: Templates/Network devices
+  templates:
+  - uuid: f31db8dbf83042099356d8222e761b96
+    template: Template emerson.ricardo Huawei NE8K BNG SNMP
+    name: Template emerson.ricardo Huawei NE8K BNG SNMP
+    description: 'Template BNG para Huawei NetEngine 8000/VRP via SNMP, validado em NE8K M8 V800R024C00SPC500.
+
+
+      Escopo desta versão:
+
+      - assinantes globais PPPoE/IPv4/IPv6/dual-stack;
+
+      - estatísticas PPP de conexão/falha como taxa;
+
+      - discovery de domains AAA;
+
+      - discovery de pools IPv4 e uso/capacidade;
+
+      - discovery de interfaces BAS;
+
+      - discovery de usuários por VLAN;
+
+      - discovery de servidores RADIUS e respostas.
+
+
+      A community e o endereço SNMP não ficam no template: use a interface SNMP do host.
+
+      O status operacional RADIUS hwRadiusServerStatus (.22) não é exposto pela release validada; traps RADIUS e contadores PADI/PADO/PADR/PADS ficam para revisão futura.
+
+      '
+    vendor:
+      name: Emerson.Ricardo
+      version: 7.4-1
+    groups:
+    - name: Templates/Network devices
+    items:
+    - uuid: d42df8501b8143d8ac8919860153c49e
+      name: 'BNG: SNMP walk - Global AAA, PPP and IP pool summary'
+      type: SNMP_AGENT
+      snmp_oid: walk[1.3.6.1.4.1.2011.5.2.1.14,1.3.6.1.4.1.2011.5.2.1.29.1,1.3.6.1.4.1.2011.6.8.1.7]
+      key: huawei.ne8k.bng.global.walk
+      delay: 1m
+      history: '0'
+      value_type: TEXT
+      description: Master SNMP walk para estatísticas globais AAA/PPPoE e resumo de pools IPv4.
+      tags:
+      - tag: component
+        value: raw
+      - tag: scope
+        value: bng
+    - uuid: 114b354583924e6bb9502d2988599c1d
+      name: 'BNG: Total online users'
+      type: DEPENDENT
+      key: huawei.ne8k.bng.users.total
+      master_item:
+        key: huawei.ne8k.bng.global.walk
+      preprocessing:
+      - type: SNMP_WALK_VALUE
+        parameters:
+        - 1.3.6.1.4.1.2011.5.2.1.14.1.1.0
+        - '0'
+      history: 7d
+      trends: 30d
+      tags:
+      - tag: component
+        value: bng
+      - tag: scope
+        value: subscribers
+    - uuid: 90ecb810927e445ebafe530f76578f59
+      name: 'BNG: PPPoE online users'
+      type: DEPENDENT
+      key: huawei.ne8k.bng.users.pppoe
+      master_item:
+        key: huawei.ne8k.bng.global.walk
+      preprocessing:
+      - type: SNMP_WALK_VALUE
+        parameters:
+        - 1.3.6.1.4.1.2011.5.2.1.14.1.2.0
+        - '0'
+      history: 7d
+      trends: 30d
+      tags:
+      - tag: component
+        value: bng
+      - tag: scope
+        value: subscribers
+    - uuid: 3d97b94ec920451da0b73ebd626965ec
+      name: 'BNG: Historical maximum online users'
+      type: DEPENDENT
+      key: huawei.ne8k.bng.users.historic.max
+      master_item:
+        key: huawei.ne8k.bng.global.walk
+      preprocessing:
+      - type: SNMP_WALK_VALUE
+        parameters:
+        - 1.3.6.1.4.1.2011.5.2.1.14.1.8.0
+        - '0'
+      history: 7d
+      trends: 30d
+      tags:
+      - tag: component
+        value: bng
+      - tag: scope
+        value: subscribers
+    - uuid: 033fcadcc4e24aa48e8e7d400483efdc
+      name: 'BNG: PPPoE maximum capacity'
+      type: DEPENDENT
+      key: huawei.ne8k.bng.users.pppoe.capacity
+      master_item:
+        key: huawei.ne8k.bng.global.walk
+      preprocessing:
+      - type: SNMP_WALK_VALUE
+        parameters:
+        - 1.3.6.1.4.1.2011.5.2.1.14.1.12.0
+        - '0'
+      history: 7d
+      trends: 30d
+      tags:
+      - tag: component
+        value: bng
+      - tag: scope
+        value: subscribers
+    - uuid: a3ed36af07f54f158730198b5e1df80f
+      name: 'BNG: IPv4 online users'
+      type: DEPENDENT
+      key: huawei.ne8k.bng.users.ipv4
+      master_item:
+        key: huawei.ne8k.bng.global.walk
+      preprocessing:
+      - type: SNMP_WALK_VALUE
+        parameters:
+        - 1.3.6.1.4.1.2011.5.2.1.14.1.15.0
+        - '0'
+      history: 7d
+      trends: 30d
+      tags:
+      - tag: component
+        value: bng
+      - tag: scope
+        value: subscribers
+    - uuid: eea5fdd2369449899925bbcbf50ea59d
+      name: 'BNG: IPv6-only online users'
+      type: DEPENDENT
+      key: huawei.ne8k.bng.users.ipv6
+      master_item:
+        key: huawei.ne8k.bng.global.walk
+      preprocessing:
+      - type: SNMP_WALK_VALUE
+        parameters:
+        - 1.3.6.1.4.1.2011.5.2.1.14.1.16.0
+        - '0'
+      history: 7d
+      trends: 30d
+      tags:
+      - tag: component
+        value: bng
+      - tag: scope
+        value: subscribers
+    - uuid: 75d7e835ebcb46f98d9329890d212451
+      name: 'BNG: Dual-stack online users'
+      type: DEPENDENT
+      key: huawei.ne8k.bng.users.dualstack
+      master_item:
+        key: huawei.ne8k.bng.global.walk
+      preprocessing:
+      - type: SNMP_WALK_VALUE
+        parameters:
+        - 1.3.6.1.4.1.2011.5.2.1.14.1.17.0
+        - '0'
+      history: 7d
+      trends: 30d
+      tags:
+      - tag: component
+        value: bng
+      - tag: scope
+        value: subscribers
+    - uuid: af4c0b07f2ee4760886dbdaecb47d565
+      name: 'BNG: Historical maximum online date'
+      type: DEPENDENT
+      key: huawei.ne8k.bng.users.historic.max.date
+      master_item:
+        key: huawei.ne8k.bng.global.walk
+      preprocessing:
+      - type: SNMP_WALK_VALUE
+        parameters:
+        - 1.3.6.1.4.1.2011.5.2.1.14.1.37.0
+        - '0'
+      - type: DISCARD_UNCHANGED_HEARTBEAT
+        parameters:
+        - 1h
+      history: 7d
+      trends: '0'
+      value_type: CHAR
+      tags:
+      - tag: component
+        value: bng
+      - tag: scope
+        value: subscribers
+    - uuid: f01563c39c944ca4ad7f3e6e675b93e1
+      name: 'BNG: IPv4 downstream traffic'
+      type: DEPENDENT
+      key: huawei.ne8k.bng.ipv4.down.bps
+      master_item:
+        key: huawei.ne8k.bng.global.walk
+      preprocessing:
+      - type: SNMP_WALK_VALUE
+        parameters:
+        - 1.3.6.1.4.1.2011.5.2.1.14.1.18.0
+        - '0'
+      - type: CHANGE_PER_SECOND
+        parameters:
+        - ''
+      - type: MULTIPLIER
+        parameters:
+        - '8'
+      history: 7d
+      trends: 30d
+      value_type: FLOAT
+      units: bps
+      tags:
+      - tag: component
+        value: bng
+      - tag: scope
+        value: traffic
+    - uuid: af6251ec135942b7a792643002b923f3
+      name: 'BNG: IPv4 upstream traffic'
+      type: DEPENDENT
+      key: huawei.ne8k.bng.ipv4.up.bps
+      master_item:
+        key: huawei.ne8k.bng.global.walk
+      preprocessing:
+      - type: SNMP_WALK_VALUE
+        parameters:
+        - 1.3.6.1.4.1.2011.5.2.1.14.1.20.0
+        - '0'
+      - type: CHANGE_PER_SECOND
+        parameters:
+        - ''
+      - type: MULTIPLIER
+        parameters:
+        - '8'
+      history: 7d
+      trends: 30d
+      value_type: FLOAT
+      units: bps
+      tags:
+      - tag: component
+        value: bng
+      - tag: scope
+        value: traffic
+    - uuid: 1bd4bf85d82a4743b8313f75a7fe5bd6
+      name: 'BNG IP pools: Number of pools'
+      type: DEPENDENT
+      key: huawei.ne8k.bng.ippool.count
+      master_item:
+        key: huawei.ne8k.bng.global.walk
+      preprocessing:
+      - type: SNMP_WALK_VALUE
+        parameters:
+        - 1.3.6.1.4.1.2011.6.8.1.7.1.0
+        - '0'
+      history: 7d
+      trends: 30d
+      tags:
+      - tag: component
+        value: ippool
+      - tag: scope
+        value: capacity
+    - uuid: c7727d316dd74f37824a02f2f71c64e6
+      name: 'BNG IP pools: Free addresses'
+      type: DEPENDENT
+      key: huawei.ne8k.bng.ippool.free
+      master_item:
+        key: huawei.ne8k.bng.global.walk
+      preprocessing:
+      - type: SNMP_WALK_VALUE
+        parameters:
+        - 1.3.6.1.4.1.2011.6.8.1.7.2.0
+        - '0'
+      history: 7d
+      trends: 30d
+      tags:
+      - tag: component
+        value: ippool
+      - tag: scope
+        value: capacity
+    - uuid: 28291de643824e2998d8942dcf761038
+      name: 'BNG IP pools: Used addresses'
+      type: DEPENDENT
+      key: huawei.ne8k.bng.ippool.used
+      master_item:
+        key: huawei.ne8k.bng.global.walk
+      preprocessing:
+      - type: SNMP_WALK_VALUE
+        parameters:
+        - 1.3.6.1.4.1.2011.6.8.1.7.3.0
+        - '0'
+      history: 7d
+      trends: 30d
+      tags:
+      - tag: component
+        value: ippool
+      - tag: scope
+        value: capacity
+    - uuid: bc769210896f4017ad095f3be4434d2b
+      name: 'BNG IP pools: Conflicted addresses'
+      type: DEPENDENT
+      key: huawei.ne8k.bng.ippool.conflict
+      master_item:
+        key: huawei.ne8k.bng.global.walk
+      preprocessing:
+      - type: SNMP_WALK_VALUE
+        parameters:
+        - 1.3.6.1.4.1.2011.6.8.1.7.4.0
+        - '0'
+      history: 7d
+      trends: 30d
+      tags:
+      - tag: component
+        value: ippool
+      - tag: scope
+        value: capacity
+    - uuid: b0ae6ddb89304b8d973f4d3179bebd5e
+      name: 'BNG IP pools: Excluded addresses'
+      type: DEPENDENT
+      key: huawei.ne8k.bng.ippool.excluded
+      master_item:
+        key: huawei.ne8k.bng.global.walk
+      preprocessing:
+      - type: SNMP_WALK_VALUE
+        parameters:
+        - 1.3.6.1.4.1.2011.6.8.1.7.5.0
+        - '0'
+      history: 7d
+      trends: 30d
+      tags:
+      - tag: component
+        value: ippool
+      - tag: scope
+        value: capacity
+    - uuid: a9027a3552d540118e478f03a97f903c
+      name: 'BNG IP pools: Total addresses'
+      type: DEPENDENT
+      key: huawei.ne8k.bng.ippool.total
+      master_item:
+        key: huawei.ne8k.bng.global.walk
+      preprocessing:
+      - type: SNMP_WALK_VALUE
+        parameters:
+        - 1.3.6.1.4.1.2011.6.8.1.7.6.0
+        - '0'
+      history: 7d
+      trends: 30d
+      tags:
+      - tag: component
+        value: ippool
+      - tag: scope
+        value: capacity
+    - uuid: 284b6a8546784abb96db97bb727fa40d
+      name: 'BNG IP pools: Global utilization'
+      type: DEPENDENT
+      key: huawei.ne8k.bng.ippool.usage
+      master_item:
+        key: huawei.ne8k.bng.global.walk
+      preprocessing:
+      - type: SNMP_WALK_VALUE
+        parameters:
+        - 1.3.6.1.4.1.2011.6.8.1.7.7.0
+        - '0'
+      history: 7d
+      trends: 30d
+      units: '%'
+      tags:
+      - tag: component
+        value: ippool
+      - tag: scope
+        value: capacity
+    - uuid: 8bb37efb036847078362c74850d987b0
+      name: 'BNG PPP: Connection attempts per second'
+      type: DEPENDENT
+      key: huawei.ne8k.bng.ppp.connect.rate
+      master_item:
+        key: huawei.ne8k.bng.global.walk
+      preprocessing:
+      - type: SNMP_WALK_VALUE
+        parameters:
+        - 1.3.6.1.4.1.2011.5.2.1.29.1.1.0
+        - '0'
+      - type: CHANGE_PER_SECOND
+        parameters:
+        - ''
+      history: 7d
+      trends: 30d
+      value_type: FLOAT
+      units: conn/s
+      tags:
+      - tag: component
+        value: ppp
+      - tag: scope
+        value: performance
+    - uuid: 6366c3abad1f413ba6bc81296a56ee47
+      name: 'BNG PPP: Successful connections per second'
+      type: DEPENDENT
+      key: huawei.ne8k.bng.ppp.success.rate
+      master_item:
+        key: huawei.ne8k.bng.global.walk
+      preprocessing:
+      - type: SNMP_WALK_VALUE
+        parameters:
+        - 1.3.6.1.4.1.2011.5.2.1.29.1.2.0
+        - '0'
+      - type: CHANGE_PER_SECOND
+        parameters:
+        - ''
+      history: 7d
+      trends: 30d
+      value_type: FLOAT
+      units: conn/s
+      tags:
+      - tag: component
+        value: ppp
+      - tag: scope
+        value: performance
+    - uuid: e0d91120cb794ebabe2113bbd231c5d0
+      name: 'BNG PPP: LCP failures per second'
+      type: DEPENDENT
+      key: huawei.ne8k.bng.ppp.lcp.fail.rate
+      master_item:
+        key: huawei.ne8k.bng.global.walk
+      preprocessing:
+      - type: SNMP_WALK_VALUE
+        parameters:
+        - 1.3.6.1.4.1.2011.5.2.1.29.1.3.0
+        - '0'
+      - type: CHANGE_PER_SECOND
+        parameters:
+        - ''
+      history: 7d
+      trends: 30d
+      value_type: FLOAT
+      units: conn/s
+      tags:
+      - tag: component
+        value: ppp
+      - tag: scope
+        value: performance
+    - uuid: 4e2a4b5ff31848bd80833565453a3115
+      name: 'BNG PPP: Authentication failures per second'
+      type: DEPENDENT
+      key: huawei.ne8k.bng.ppp.auth.fail.rate
+      master_item:
+        key: huawei.ne8k.bng.global.walk
+      preprocessing:
+      - type: SNMP_WALK_VALUE
+        parameters:
+        - 1.3.6.1.4.1.2011.5.2.1.29.1.4.0
+        - '0'
+      - type: CHANGE_PER_SECOND
+        parameters:
+        - ''
+      history: 7d
+      trends: 30d
+      value_type: FLOAT
+      units: conn/s
+      tags:
+      - tag: component
+        value: ppp
+      - tag: scope
+        value: performance
+    - uuid: 32b0e72dab5b4655a163dc80380db810
+      name: 'BNG PPP: NCP failures per second'
+      type: DEPENDENT
+      key: huawei.ne8k.bng.ppp.ncp.fail.rate
+      master_item:
+        key: huawei.ne8k.bng.global.walk
+      preprocessing:
+      - type: SNMP_WALK_VALUE
+        parameters:
+        - 1.3.6.1.4.1.2011.5.2.1.29.1.5.0
+        - '0'
+      - type: CHANGE_PER_SECOND
+        parameters:
+        - ''
+      history: 7d
+      trends: 30d
+      value_type: FLOAT
+      units: conn/s
+      tags:
+      - tag: component
+        value: ppp
+      - tag: scope
+        value: performance
+    - uuid: 3a60a399c74c4191946bb6fbc318217b
+      name: 'BNG PPP: IP allocation failures per second'
+      type: DEPENDENT
+      key: huawei.ne8k.bng.ppp.ipalloc.fail.rate
+      master_item:
+        key: huawei.ne8k.bng.global.walk
+      preprocessing:
+      - type: SNMP_WALK_VALUE
+        parameters:
+        - 1.3.6.1.4.1.2011.5.2.1.29.1.6.0
+        - '0'
+      - type: CHANGE_PER_SECOND
+        parameters:
+        - ''
+      history: 7d
+      trends: 30d
+      value_type: FLOAT
+      units: conn/s
+      tags:
+      - tag: component
+        value: ppp
+      - tag: scope
+        value: performance
+    - uuid: 2155eab4068245beb3c642627b994c37
+      name: 'BNG PPP: Other PPP failures per second'
+      type: DEPENDENT
+      key: huawei.ne8k.bng.ppp.other.fail.rate
+      master_item:
+        key: huawei.ne8k.bng.global.walk
+      preprocessing:
+      - type: SNMP_WALK_VALUE
+        parameters:
+        - 1.3.6.1.4.1.2011.5.2.1.29.1.7.0
+        - '0'
+      - type: CHANGE_PER_SECOND
+        parameters:
+        - ''
+      history: 7d
+      trends: 30d
+      value_type: FLOAT
+      units: conn/s
+      tags:
+      - tag: component
+        value: ppp
+      - tag: scope
+        value: performance
+    - uuid: b92083af2c5f4227b2ad1e012c4bbac0
+      name: 'BNG PPP: Total PPP failures per second'
+      type: DEPENDENT
+      key: huawei.ne8k.bng.ppp.fail.total.rate
+      master_item:
+        key: huawei.ne8k.bng.global.walk
+      preprocessing:
+      - type: SNMP_WALK_VALUE
+        parameters:
+        - 1.3.6.1.4.1.2011.5.2.1.29.1.8.0
+        - '0'
+      - type: CHANGE_PER_SECOND
+        parameters:
+        - ''
+      history: 7d
+      trends: 30d
+      value_type: FLOAT
+      units: conn/s
+      tags:
+      - tag: component
+        value: ppp
+      - tag: scope
+        value: performance
+    - uuid: 50c9d9b2913140fcb164049c168b4adc
+      name: 'BNG: SNMP walk - AAA domains'
+      type: SNMP_AGENT
+      snmp_oid: walk[1.3.6.1.4.1.2011.5.2.1.4.1.1,1.3.6.1.4.1.2011.5.2.1.6.1.2,1.3.6.1.4.1.2011.5.2.1.6.1.3,1.3.6.1.4.1.2011.5.2.1.6.1.4,1.3.6.1.4.1.2011.5.2.1.6.1.6,1.3.6.1.4.1.2011.5.2.1.6.1.8,1.3.6.1.4.1.2011.5.2.1.6.1.9,1.3.6.1.4.1.2011.5.2.1.6.1.10,1.3.6.1.4.1.2011.5.2.1.6.1.12,1.3.6.1.4.1.2011.5.2.1.6.1.13,1.3.6.1.4.1.2011.5.2.1.6.1.15,1.3.6.1.4.1.2011.5.2.1.6.1.16,1.3.6.1.4.1.2011.5.2.1.6.1.17,1.3.6.1.4.1.2011.5.2.1.6.1.18,1.3.6.1.4.1.2011.5.2.1.6.1.19,1.3.6.1.4.1.2011.5.2.1.6.1.20]
+      key: huawei.ne8k.bng.domain.walk
+      delay: 1m
+      history: '0'
+      value_type: TEXT
+      tags:
+      - tag: component
+        value: raw
+      - tag: scope
+        value: domain
+    - uuid: 29e2cd3d7d5b43eb80a0d11ecc310aa6
+      name: 'BNG: SNMP walk - IPv4 pools'
+      type: SNMP_AGENT
+      snmp_oid: walk[1.3.6.1.4.1.2011.6.8.1.1.1.2,1.3.6.1.4.1.2011.6.8.1.1.1.3,1.3.6.1.4.1.2011.6.8.1.1.1.4,1.3.6.1.4.1.2011.6.8.1.1.1.9,1.3.6.1.4.1.2011.6.8.1.1.1.15,1.3.6.1.4.1.2011.6.8.1.1.1.16,1.3.6.1.4.1.2011.6.8.1.1.1.17,1.3.6.1.4.1.2011.6.8.1.1.1.18,1.3.6.1.4.1.2011.6.8.1.1.1.19,1.3.6.1.4.1.2011.6.8.1.1.1.20,1.3.6.1.4.1.2011.6.8.1.1.1.21]
+      key: huawei.ne8k.bng.pool.walk
+      delay: 1m
+      history: '0'
+      value_type: TEXT
+      tags:
+      - tag: component
+        value: raw
+      - tag: scope
+        value: ippool
+    - uuid: 339244a9f2d840638864147257f2e497
+      name: 'BNG: SNMP walk - BAS interfaces'
+      type: SNMP_AGENT
+      snmp_oid: walk[1.3.6.1.4.1.2011.5.25.40.1.1.20.1.1,1.3.6.1.4.1.2011.5.25.40.1.1.20.1.2,1.3.6.1.4.1.2011.5.25.40.1.1.20.1.3,1.3.6.1.4.1.2011.5.25.40.1.1.20.1.4,1.3.6.1.4.1.2011.5.25.40.1.1.20.1.5,1.3.6.1.4.1.2011.5.25.40.1.1.20.1.6]
+      key: huawei.ne8k.bng.bas.walk
+      delay: 1m
+      history: '0'
+      value_type: TEXT
+      tags:
+      - tag: component
+        value: raw
+      - tag: scope
+        value: bas
+    - uuid: 0b8804a82d9f4900aec957c932329984
+      name: 'BNG: SNMP walk - BAS VLAN users'
+      type: SNMP_AGENT
+      snmp_oid: walk[1.3.6.1.4.1.2011.5.25.40.1.1.13.1.1,1.3.6.1.4.1.2011.5.25.40.1.1.13.1.2,1.3.6.1.4.1.2011.5.25.40.1.1.13.1.3,1.3.6.1.4.1.2011.5.25.40.1.1.13.1.4]
+      key: huawei.ne8k.bng.vlan.walk
+      delay: 1m
+      history: '0'
+      value_type: TEXT
+      tags:
+      - tag: component
+        value: raw
+      - tag: scope
+        value: vlan
+    - uuid: 4c9e159249ff4ff3ae26295904450a09
+      name: 'BNG: SNMP walk - RADIUS servers'
+      type: SNMP_AGENT
+      snmp_oid: walk[1.3.6.1.4.1.2011.5.25.40.15.1.2.1.1,1.3.6.1.4.1.2011.5.25.40.15.1.2.1.2,1.3.6.1.4.1.2011.5.25.40.15.1.2.1.3,1.3.6.1.4.1.2011.5.25.40.15.1.2.1.4,1.3.6.1.4.1.2011.5.25.40.15.1.2.1.5,1.3.6.1.4.1.2011.5.25.40.15.1.2.1.6,1.3.6.1.4.1.2011.5.25.40.15.1.2.1.12]
+      key: huawei.ne8k.bng.radius.walk
+      delay: 1m
+      history: '0'
+      value_type: TEXT
+      tags:
+      - tag: component
+        value: raw
+      - tag: scope
+        value: radius
+    - uuid: 2687d9f3e3084a889cb917f13c4994b7
+      name: 'BNG: SNMP walk - AAA offline reasons'
+      type: SNMP_AGENT
+      snmp_oid: walk[1.3.6.1.4.1.2011.5.2.1.34.1.1,1.3.6.1.4.1.2011.5.2.1.34.1.2,1.3.6.1.4.1.2011.5.2.1.34.1.3]
+      key: huawei.ne8k.bng.offline.reason.walk
+      delay: 5m
+      history: '0'
+      value_type: TEXT
+      tags:
+      - tag: component
+        value: raw
+      - tag: scope
+        value: aaa-reason
+    discovery_rules:
+    - uuid: 6f2ba152fba54905aa13971560b62b52
+      name: 'BNG: AAA domain discovery'
+      type: DEPENDENT
+      key: huawei.ne8k.bng.domain.discovery
+      master_item:
+        key: huawei.ne8k.bng.domain.walk
+      lifetime: 30d
+      filter:
+        evaltype: AND
+        conditions:
+        - macro: '{#DOMAIN}'
+          value: '{$BNG.DOMAIN.MATCHES}'
+        - macro: '{#DOMAIN}'
+          value: '{$BNG.DOMAIN.NOT_MATCHES}'
+          operator: NOT_MATCHES_REGEX
+      description: Descobre domains AAA pelo hwDomainName e usa o mesmo índice textual da hwDomainStatTable.
+      preprocessing:
+      - type: SNMP_WALK_TO_JSON
+        parameters:
+        - '{#DOMAIN}'
+        - 1.3.6.1.4.1.2011.5.2.1.4.1.1
+        - '0'
+      - type: DISCARD_UNCHANGED_HEARTBEAT
+        parameters:
+        - 1h
+      item_prototypes:
+      - uuid: 3f27cdb1462b4cbba801498a2b334270
+        name: 'BNG Domain [{#DOMAIN}]: Online users'
+        type: DEPENDENT
+        key: huawei.ne8k.bng.domain.online[{#SNMPINDEX}]
+        master_item:
+          key: huawei.ne8k.bng.domain.walk
+        history: 7d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.5.2.1.6.1.2.{#SNMPINDEX}
+          - '0'
+        trends: 30d
+        tags:
+        - tag: component
+          value: domain
+        - tag: scope
+          value: bng
+        - tag: domain
+          value: '{#DOMAIN}'
+      - uuid: 065d4fda09df491da091ac1e8175a2df
+        name: 'BNG Domain [{#DOMAIN}]: PPP online users'
+        type: DEPENDENT
+        key: huawei.ne8k.bng.domain.ppp.online[{#SNMPINDEX}]
+        master_item:
+          key: huawei.ne8k.bng.domain.walk
+        history: 7d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.5.2.1.6.1.3.{#SNMPINDEX}
+          - '0'
+        trends: 30d
+        tags:
+        - tag: component
+          value: domain
+        - tag: scope
+          value: bng
+        - tag: domain
+          value: '{#DOMAIN}'
+      - uuid: e167ad91aa3e474395cbedd3c8c9159f
+        name: 'BNG Domain [{#DOMAIN}]: IPv4 pool total'
+        type: DEPENDENT
+        key: huawei.ne8k.bng.domain.ip.total[{#SNMPINDEX}]
+        master_item:
+          key: huawei.ne8k.bng.domain.walk
+        history: 7d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.5.2.1.6.1.8.{#SNMPINDEX}
+          - '0'
+        trends: 30d
+        tags:
+        - tag: component
+          value: domain
+        - tag: scope
+          value: bng
+        - tag: domain
+          value: '{#DOMAIN}'
+      - uuid: 0cc54780f5f6483bbce5711a93f50d0b
+        name: 'BNG Domain [{#DOMAIN}]: IPv4 pool used'
+        type: DEPENDENT
+        key: huawei.ne8k.bng.domain.ip.used[{#SNMPINDEX}]
+        master_item:
+          key: huawei.ne8k.bng.domain.walk
+        history: 7d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.5.2.1.6.1.9.{#SNMPINDEX}
+          - '0'
+        trends: 30d
+        tags:
+        - tag: component
+          value: domain
+        - tag: scope
+          value: bng
+        - tag: domain
+          value: '{#DOMAIN}'
+      - uuid: ca2bc5f0d861400287f6ba5ec8f159a9
+        name: 'BNG Domain [{#DOMAIN}]: IPv4 pool conflict'
+        type: DEPENDENT
+        key: huawei.ne8k.bng.domain.ip.conflict[{#SNMPINDEX}]
+        master_item:
+          key: huawei.ne8k.bng.domain.walk
+        history: 7d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.5.2.1.6.1.10.{#SNMPINDEX}
+          - '0'
+        trends: 30d
+        tags:
+        - tag: component
+          value: domain
+        - tag: scope
+          value: bng
+        - tag: domain
+          value: '{#DOMAIN}'
+      - uuid: bb6dfb0f6b564d79b7f8fb92bc88e25a
+        name: 'BNG Domain [{#DOMAIN}]: IPv4 pool free'
+        type: DEPENDENT
+        key: huawei.ne8k.bng.domain.ip.free[{#SNMPINDEX}]
+        master_item:
+          key: huawei.ne8k.bng.domain.walk
+        history: 7d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.5.2.1.6.1.12.{#SNMPINDEX}
+          - '0'
+        trends: 30d
+        tags:
+        - tag: component
+          value: domain
+        - tag: scope
+          value: bng
+        - tag: domain
+          value: '{#DOMAIN}'
+      - uuid: 2a61a8a9862a470e916fbe5447c228de
+        name: 'BNG Domain [{#DOMAIN}]: IPv4 pool utilization'
+        type: DEPENDENT
+        key: huawei.ne8k.bng.domain.ip.usage[{#SNMPINDEX}]
+        master_item:
+          key: huawei.ne8k.bng.domain.walk
+        history: 7d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.5.2.1.6.1.13.{#SNMPINDEX}
+          - '0'
+        trends: 30d
+        value_type: FLOAT
+        units: '%'
+        tags:
+        - tag: component
+          value: domain
+        - tag: scope
+          value: bng
+        - tag: domain
+          value: '{#DOMAIN}'
+      - uuid: f9fe04f1834b46eaa0435f9ecf35882c
+        name: 'BNG Domain [{#DOMAIN}]: Downstream traffic'
+        type: DEPENDENT
+        key: huawei.ne8k.bng.domain.down.bps[{#SNMPINDEX}]
+        master_item:
+          key: huawei.ne8k.bng.domain.walk
+        history: 7d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.5.2.1.6.1.4.{#SNMPINDEX}
+          - '0'
+        - type: CHANGE_PER_SECOND
+          parameters:
+          - ''
+        - type: MULTIPLIER
+          parameters:
+          - '8'
+        trends: 30d
+        value_type: FLOAT
+        units: bps
+        tags:
+        - tag: component
+          value: domain
+        - tag: scope
+          value: bng
+        - tag: domain
+          value: '{#DOMAIN}'
+      - uuid: 45b2471d7f57401ca05fed0922fbda9f
+        name: 'BNG Domain [{#DOMAIN}]: Upstream traffic'
+        type: DEPENDENT
+        key: huawei.ne8k.bng.domain.up.bps[{#SNMPINDEX}]
+        master_item:
+          key: huawei.ne8k.bng.domain.walk
+        history: 7d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.5.2.1.6.1.6.{#SNMPINDEX}
+          - '0'
+        - type: CHANGE_PER_SECOND
+          parameters:
+          - ''
+        - type: MULTIPLIER
+          parameters:
+          - '8'
+        trends: 30d
+        value_type: FLOAT
+        units: bps
+        tags:
+        - tag: component
+          value: domain
+        - tag: scope
+          value: bng
+        - tag: domain
+          value: '{#DOMAIN}'
+      - uuid: 375822d24d224049867ad0414ff617d3
+        name: 'BNG Domain [{#DOMAIN}]: Authentication requests per second'
+        type: DEPENDENT
+        key: huawei.ne8k.bng.domain.auth.requests.rate[{#SNMPINDEX}]
+        master_item:
+          key: huawei.ne8k.bng.domain.walk
+        history: 7d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.5.2.1.6.1.15.{#SNMPINDEX}
+          - '0'
+        - type: CHANGE_PER_SECOND
+          parameters:
+          - ''
+        trends: 30d
+        value_type: FLOAT
+        units: req/s
+        tags:
+        - tag: component
+          value: domain
+        - tag: scope
+          value: bng
+        - tag: domain
+          value: '{#DOMAIN}'
+      - uuid: 4ed939c435284a53a2be3f3985787ccb
+        name: 'BNG Domain [{#DOMAIN}]: Authentication accepts per second'
+        type: DEPENDENT
+        key: huawei.ne8k.bng.domain.auth.accepts.rate[{#SNMPINDEX}]
+        master_item:
+          key: huawei.ne8k.bng.domain.walk
+        history: 7d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.5.2.1.6.1.16.{#SNMPINDEX}
+          - '0'
+        - type: CHANGE_PER_SECOND
+          parameters:
+          - ''
+        trends: 30d
+        value_type: FLOAT
+        units: req/s
+        tags:
+        - tag: component
+          value: domain
+        - tag: scope
+          value: bng
+        - tag: domain
+          value: '{#DOMAIN}'
+      - uuid: 373edc7cadf74261990ff678f11113ad
+        name: 'BNG Domain [{#DOMAIN}]: Authentication rejects per second'
+        type: DEPENDENT
+        key: huawei.ne8k.bng.domain.auth.rejects.rate[{#SNMPINDEX}]
+        master_item:
+          key: huawei.ne8k.bng.domain.walk
+        history: 7d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.5.2.1.6.1.17.{#SNMPINDEX}
+          - '0'
+        - type: CHANGE_PER_SECOND
+          parameters:
+          - ''
+        trends: 30d
+        value_type: FLOAT
+        units: req/s
+        tags:
+        - tag: component
+          value: domain
+        - tag: scope
+          value: bng
+        - tag: domain
+          value: '{#DOMAIN}'
+      - uuid: 5b68976adef846739a3a0bea5664b73b
+        name: 'BNG Domain [{#DOMAIN}]: Accounting requests per second'
+        type: DEPENDENT
+        key: huawei.ne8k.bng.domain.acct.requests.rate[{#SNMPINDEX}]
+        master_item:
+          key: huawei.ne8k.bng.domain.walk
+        history: 7d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.5.2.1.6.1.18.{#SNMPINDEX}
+          - '0'
+        - type: CHANGE_PER_SECOND
+          parameters:
+          - ''
+        trends: 30d
+        value_type: FLOAT
+        units: req/s
+        tags:
+        - tag: component
+          value: domain
+        - tag: scope
+          value: bng
+        - tag: domain
+          value: '{#DOMAIN}'
+      - uuid: 10e3aaf9657b4a9bbc424ec2dea0d2f9
+        name: 'BNG Domain [{#DOMAIN}]: Accounting successful responses per second'
+        type: DEPENDENT
+        key: huawei.ne8k.bng.domain.acct.success.rate[{#SNMPINDEX}]
+        master_item:
+          key: huawei.ne8k.bng.domain.walk
+        history: 7d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.5.2.1.6.1.19.{#SNMPINDEX}
+          - '0'
+        - type: CHANGE_PER_SECOND
+          parameters:
+          - ''
+        trends: 30d
+        value_type: FLOAT
+        units: req/s
+        tags:
+        - tag: component
+          value: domain
+        - tag: scope
+          value: bng
+        - tag: domain
+          value: '{#DOMAIN}'
+      - uuid: 561904d27bc44383a550bf4ca77f1e09
+        name: 'BNG Domain [{#DOMAIN}]: Accounting failed responses per second'
+        type: DEPENDENT
+        key: huawei.ne8k.bng.domain.acct.fail.rate[{#SNMPINDEX}]
+        master_item:
+          key: huawei.ne8k.bng.domain.walk
+        history: 7d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.5.2.1.6.1.20.{#SNMPINDEX}
+          - '0'
+        - type: CHANGE_PER_SECOND
+          parameters:
+          - ''
+        trends: 30d
+        value_type: FLOAT
+        units: req/s
+        tags:
+        - tag: component
+          value: domain
+        - tag: scope
+          value: bng
+        - tag: domain
+          value: '{#DOMAIN}'
+    - uuid: c8a9a469d1a948e28e2508b2b47703a3
+      name: 'BNG: IPv4 pool discovery'
+      type: DEPENDENT
+      key: huawei.ne8k.bng.pool.discovery
+      master_item:
+        key: huawei.ne8k.bng.pool.walk
+      lifetime: 30d
+      filter:
+        evaltype: AND
+        conditions:
+        - macro: '{#POOLNAME}'
+          value: '{$BNG.POOL.MATCHES}'
+        - macro: '{#POOLNAME}'
+          value: '{$BNG.POOL.NOT_MATCHES}'
+          operator: NOT_MATCHES_REGEX
+      preprocessing:
+      - type: SNMP_WALK_TO_JSON
+        parameters:
+        - '{#POOLNAME}'
+        - 1.3.6.1.4.1.2011.6.8.1.1.1.2
+        - '0'
+        - '{#POOLGW}'
+        - 1.3.6.1.4.1.2011.6.8.1.1.1.3
+        - '0'
+        - '{#POOLMASK}'
+        - 1.3.6.1.4.1.2011.6.8.1.1.1.4
+        - '0'
+      - type: DISCARD_UNCHANGED_HEARTBEAT
+        parameters:
+        - 1h
+      item_prototypes:
+      - uuid: 9c9d4995b44240e99ae6c3ccd5da4201
+        name: 'BNG IP Pool [{#POOLNAME}]: Gateway'
+        type: DEPENDENT
+        key: huawei.ne8k.bng.pool.gateway[{#SNMPINDEX}]
+        master_item:
+          key: huawei.ne8k.bng.pool.walk
+        history: 7d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.6.8.1.1.1.3.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1d
+        trends: '0'
+        value_type: CHAR
+        tags:
+        - tag: component
+          value: ippool
+        - tag: scope
+          value: bng
+        - tag: pool
+          value: '{#POOLNAME}'
+      - uuid: bc2c1c7f5d5247d7a4bd423b5d3eca04
+        name: 'BNG IP Pool [{#POOLNAME}]: Netmask'
+        type: DEPENDENT
+        key: huawei.ne8k.bng.pool.netmask[{#SNMPINDEX}]
+        master_item:
+          key: huawei.ne8k.bng.pool.walk
+        history: 7d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.6.8.1.1.1.4.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1d
+        trends: '0'
+        value_type: CHAR
+        tags:
+        - tag: component
+          value: ippool
+        - tag: scope
+          value: bng
+        - tag: pool
+          value: '{#POOLNAME}'
+      - uuid: 029189bc622e441f9caba24a6294a878
+        name: 'BNG IP Pool [{#POOLNAME}]: Lease time'
+        type: DEPENDENT
+        key: huawei.ne8k.bng.pool.lease[{#SNMPINDEX}]
+        master_item:
+          key: huawei.ne8k.bng.pool.walk
+        history: 7d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.6.8.1.1.1.9.{#SNMPINDEX}
+          - '0'
+        trends: 30d
+        units: m
+        tags:
+        - tag: component
+          value: ippool
+        - tag: scope
+          value: bng
+        - tag: pool
+          value: '{#POOLNAME}'
+      - uuid: 170289631d2f47aab2c18c4d774d82d1
+        name: 'BNG IP Pool [{#POOLNAME}]: Total addresses'
+        type: DEPENDENT
+        key: huawei.ne8k.bng.pool.total[{#SNMPINDEX}]
+        master_item:
+          key: huawei.ne8k.bng.pool.walk
+        history: 7d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.6.8.1.1.1.15.{#SNMPINDEX}
+          - '0'
+        trends: 30d
+        tags:
+        - tag: component
+          value: ippool
+        - tag: scope
+          value: bng
+        - tag: pool
+          value: '{#POOLNAME}'
+      - uuid: 286327c0b675463da1c90123202cad6b
+        name: 'BNG IP Pool [{#POOLNAME}]: Used addresses'
+        type: DEPENDENT
+        key: huawei.ne8k.bng.pool.used[{#SNMPINDEX}]
+        master_item:
+          key: huawei.ne8k.bng.pool.walk
+        history: 7d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.6.8.1.1.1.16.{#SNMPINDEX}
+          - '0'
+        trends: 30d
+        tags:
+        - tag: component
+          value: ippool
+        - tag: scope
+          value: bng
+        - tag: pool
+          value: '{#POOLNAME}'
+      - uuid: 270d5589ea5e4ea1ba2d701b1b3accb3
+        name: 'BNG IP Pool [{#POOLNAME}]: Conflicted addresses'
+        type: DEPENDENT
+        key: huawei.ne8k.bng.pool.conflict[{#SNMPINDEX}]
+        master_item:
+          key: huawei.ne8k.bng.pool.walk
+        history: 7d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.6.8.1.1.1.17.{#SNMPINDEX}
+          - '0'
+        trends: 30d
+        tags:
+        - tag: component
+          value: ippool
+        - tag: scope
+          value: bng
+        - tag: pool
+          value: '{#POOLNAME}'
+      - uuid: 4e0996384d674fd3bea83d47c3e33119
+        name: 'BNG IP Pool [{#POOLNAME}]: Excluded addresses'
+        type: DEPENDENT
+        key: huawei.ne8k.bng.pool.excluded[{#SNMPINDEX}]
+        master_item:
+          key: huawei.ne8k.bng.pool.walk
+        history: 7d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.6.8.1.1.1.18.{#SNMPINDEX}
+          - '0'
+        trends: 30d
+        tags:
+        - tag: component
+          value: ippool
+        - tag: scope
+          value: bng
+        - tag: pool
+          value: '{#POOLNAME}'
+      - uuid: bcf55a70a41b4d6abbbdd5c5bf286cc3
+        name: 'BNG IP Pool [{#POOLNAME}]: Free addresses'
+        type: DEPENDENT
+        key: huawei.ne8k.bng.pool.free[{#SNMPINDEX}]
+        master_item:
+          key: huawei.ne8k.bng.pool.walk
+        history: 7d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.6.8.1.1.1.19.{#SNMPINDEX}
+          - '0'
+        trends: 30d
+        tags:
+        - tag: component
+          value: ippool
+        - tag: scope
+          value: bng
+        - tag: pool
+          value: '{#POOLNAME}'
+      - uuid: 3b982f52c44e437eb8aea3444109136f
+        name: 'BNG IP Pool [{#POOLNAME}]: Utilization'
+        type: DEPENDENT
+        key: huawei.ne8k.bng.pool.usage[{#SNMPINDEX}]
+        master_item:
+          key: huawei.ne8k.bng.pool.walk
+        history: 7d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.6.8.1.1.1.20.{#SNMPINDEX}
+          - '0'
+        trends: 30d
+        units: '%'
+        tags:
+        - tag: component
+          value: ippool
+        - tag: scope
+          value: bng
+        - tag: pool
+          value: '{#POOLNAME}'
+      - uuid: 52d7fadd68f6493f8909df46e78d86cb
+        name: 'BNG IP Pool [{#POOLNAME}]: DNS servers'
+        type: DEPENDENT
+        key: huawei.ne8k.bng.pool.dns[{#SNMPINDEX}]
+        master_item:
+          key: huawei.ne8k.bng.pool.walk
+        history: 7d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.6.8.1.1.1.21.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1d
+        trends: '0'
+        value_type: CHAR
+        tags:
+        - tag: component
+          value: ippool
+        - tag: scope
+          value: bng
+        - tag: pool
+          value: '{#POOLNAME}'
+      trigger_prototypes:
+      - uuid: 33dd324b3e4c483ba32bad11a3766caf
+        expression: last(/Template emerson.ricardo Huawei NE8K BNG SNMP/huawei.ne8k.bng.pool.usage[{#SNMPINDEX}])>{$BNG.IPPOOL.WARN} and last(/Template emerson.ricardo Huawei NE8K BNG SNMP/huawei.ne8k.bng.pool.usage[{#SNMPINDEX}])<={$BNG.IPPOOL.HIGH}
+        name: 'BNG IP Pool [{#POOLNAME}]: Utilization above warning threshold'
+        priority: WARNING
+        opdata: 'Usage: {ITEM.LASTVALUE1}'
+        tags:
+        - tag: scope
+          value: capacity
+        - tag: pool
+          value: '{#POOLNAME}'
+      - uuid: 3305116f77e74073976c994181d6f117
+        expression: last(/Template emerson.ricardo Huawei NE8K BNG SNMP/huawei.ne8k.bng.pool.usage[{#SNMPINDEX}])>{$BNG.IPPOOL.HIGH}
+        name: 'BNG IP Pool [{#POOLNAME}]: Utilization above high threshold'
+        priority: HIGH
+        opdata: 'Usage: {ITEM.LASTVALUE1}'
+        tags:
+        - tag: scope
+          value: capacity
+        - tag: pool
+          value: '{#POOLNAME}'
+      - uuid: a7bce13f962e4cc4af7740a1736cd069
+        expression: last(/Template emerson.ricardo Huawei NE8K BNG SNMP/huawei.ne8k.bng.pool.conflict[{#SNMPINDEX}])>0
+        name: 'BNG IP Pool [{#POOLNAME}]: IP conflict detected'
+        priority: WARNING
+        opdata: 'Conflicts: {ITEM.LASTVALUE1}'
+        tags:
+        - tag: scope
+          value: capacity
+        - tag: pool
+          value: '{#POOLNAME}'
+    - uuid: 20d5e72bb3f84dc58229e67cf12b8e1f
+      name: 'BNG: BAS interface discovery'
+      type: DEPENDENT
+      key: huawei.ne8k.bng.bas.discovery
+      master_item:
+        key: huawei.ne8k.bng.bas.walk
+      lifetime: 30d
+      filter:
+        evaltype: AND
+        conditions:
+        - macro: '{#BASNAME}'
+          value: '{$BNG.BAS.MATCHES}'
+        - macro: '{#BASNAME}'
+          value: '{$BNG.BAS.NOT_MATCHES}'
+          operator: NOT_MATCHES_REGEX
+      preprocessing:
+      - type: SNMP_WALK_TO_JSON
+        parameters:
+        - '{#BASNAME}'
+        - 1.3.6.1.4.1.2011.5.25.40.1.1.20.1.6
+        - '0'
+      - type: DISCARD_UNCHANGED_HEARTBEAT
+        parameters:
+        - 1h
+      item_prototypes:
+      - uuid: 1da5301fd57248abb6a03d7d0341c9cc
+        name: 'BNG BAS [{#BASNAME}]: Online users'
+        type: DEPENDENT
+        key: huawei.ne8k.bng.bas.users[{#SNMPINDEX}]
+        master_item:
+          key: huawei.ne8k.bng.bas.walk
+        history: 7d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.5.25.40.1.1.20.1.5.{#SNMPINDEX}
+          - '0'
+        trends: 30d
+        tags:
+        - tag: component
+          value: bas
+        - tag: scope
+          value: bng
+        - tag: interface
+          value: '{#BASNAME}'
+      - uuid: 0cfb7912bae04a5490f7d900e279a9eb
+        name: 'BNG BAS [{#BASNAME}]: Uplink rate (Huawei raw)'
+        type: DEPENDENT
+        key: huawei.ne8k.bng.bas.up.rate.raw[{#SNMPINDEX}]
+        master_item:
+          key: huawei.ne8k.bng.bas.walk
+        history: 7d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.5.25.40.1.1.20.1.3.{#SNMPINDEX}
+          - '0'
+        trends: 30d
+        tags:
+        - tag: component
+          value: bas
+        - tag: scope
+          value: bng
+        - tag: interface
+          value: '{#BASNAME}'
+        description: Unidade não confirmada pela MIB pública; valor mantido sem unidade.
+      - uuid: 044f4f1a7ae24037aa2165258b89d062
+        name: 'BNG BAS [{#BASNAME}]: Downlink rate (Huawei raw)'
+        type: DEPENDENT
+        key: huawei.ne8k.bng.bas.down.rate.raw[{#SNMPINDEX}]
+        master_item:
+          key: huawei.ne8k.bng.bas.walk
+        history: 7d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.5.25.40.1.1.20.1.4.{#SNMPINDEX}
+          - '0'
+        trends: 30d
+        tags:
+        - tag: component
+          value: bas
+        - tag: scope
+          value: bng
+        - tag: interface
+          value: '{#BASNAME}'
+        description: Unidade não confirmada pela MIB pública; valor mantido sem unidade.
+      - uuid: 2eba5415c3e34f1fa2748d349f72fdc2
+        name: 'BNG BAS [{#BASNAME}]: Statistics timestamp'
+        type: DEPENDENT
+        key: huawei.ne8k.bng.bas.stats.time[{#SNMPINDEX}]
+        master_item:
+          key: huawei.ne8k.bng.bas.walk
+        history: 7d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.5.25.40.1.1.20.1.2.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1h
+        trends: '0'
+        value_type: CHAR
+        tags:
+        - tag: component
+          value: bas
+        - tag: scope
+          value: bng
+        - tag: interface
+          value: '{#BASNAME}'
+    - uuid: c5e74098645c4503921951fb4d9021c7
+      name: 'BNG: BAS VLAN user discovery'
+      type: DEPENDENT
+      key: huawei.ne8k.bng.vlan.discovery
+      master_item:
+        key: huawei.ne8k.bng.vlan.walk
+      lifetime: 30d
+      filter:
+        evaltype: AND
+        conditions:
+        - macro: '{#VLAN}'
+          value: '{$BNG.VLAN.MATCHES}'
+        - macro: '{#VLAN}'
+          value: '{$BNG.VLAN.NOT_MATCHES}'
+          operator: NOT_MATCHES_REGEX
+        - macro: '{#BASIFINDEX}'
+          value: '{$BNG.BAS.IFINDEX.MATCHES}'
+      description: Descobre VLANs da tabela hwBRASIfVlanAccessTable. Zero usuários NÃO remove a VLAN do discovery.
+      preprocessing:
+      - type: SNMP_WALK_TO_JSON
+        parameters:
+        - '{#BASIFINDEX}'
+        - 1.3.6.1.4.1.2011.5.25.40.1.1.13.1.1
+        - '0'
+        - '{#SVLAN}'
+        - 1.3.6.1.4.1.2011.5.25.40.1.1.13.1.2
+        - '0'
+        - '{#VLAN}'
+        - 1.3.6.1.4.1.2011.5.25.40.1.1.13.1.3
+        - '0'
+      - type: DISCARD_UNCHANGED_HEARTBEAT
+        parameters:
+        - 1h
+      item_prototypes:
+      - uuid: bb7648420a80480ea36ce8a0b967cccd
+        name: 'BNG VLAN {#VLAN} [BAS ifIndex {#BASIFINDEX}, S-VLAN {#SVLAN}]: Online users'
+        type: DEPENDENT
+        key: huawei.ne8k.bng.vlan.users[{#SNMPINDEX}]
+        master_item:
+          key: huawei.ne8k.bng.vlan.walk
+        history: 7d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.5.25.40.1.1.13.1.4.{#SNMPINDEX}
+          - '0'
+        trends: 30d
+        tags:
+        - tag: component
+          value: vlan
+        - tag: scope
+          value: bng
+        - tag: vlan
+          value: '{#VLAN}'
+        - tag: bas_ifindex
+          value: '{#BASIFINDEX}'
+    - uuid: 0b56f368d06049759f89d11e70326f72
+      name: 'BNG: RADIUS server discovery'
+      type: DEPENDENT
+      key: huawei.ne8k.bng.radius.discovery
+      master_item:
+        key: huawei.ne8k.bng.radius.walk
+      lifetime: 30d
+      filter:
+        evaltype: AND
+        conditions:
+        - macro: '{#RADIUSIP}'
+          value: '{$BNG.RADIUS.IP.MATCHES}'
+        - macro: '{#RADIUSVRF}'
+          value: '{$BNG.RADIUS.VRF.MATCHES}'
+      description: Descobre servidores RADIUS. O hwRadiusServerStatus (.22) não é exposto na release validada, portanto esta versão não cria status UP/DOWN por polling.
+      preprocessing:
+      - type: SNMP_WALK_TO_JSON
+        parameters:
+        - '{#RADIUSINDEX}'
+        - 1.3.6.1.4.1.2011.5.25.40.15.1.2.1.1
+        - '0'
+        - '{#RADIUSTYPE}'
+        - 1.3.6.1.4.1.2011.5.25.40.15.1.2.1.2
+        - '0'
+        - '{#RADIUSVRF}'
+        - 1.3.6.1.4.1.2011.5.25.40.15.1.2.1.3
+        - '0'
+        - '{#RADIUSIP}'
+        - 1.3.6.1.4.1.2011.5.25.40.15.1.2.1.4
+        - '0'
+        - '{#RADIUSPORT}'
+        - 1.3.6.1.4.1.2011.5.25.40.15.1.2.1.5
+        - '0'
+      - type: JAVASCRIPT
+        parameters:
+        - "var rows = JSON.parse(value);\nfor (var i = 0; i < rows.length; i++) {\n    var idx = String(rows[i][\"{#SNMPINDEX}\"] || \"\").split('.');\n    var n = parseInt(idx[0], 10);\n    if (!isNaN(n) && idx.length >= n + 3) {\n        var s = \"\";\n        for (var j = 1; j <= n; j++) s += String.fromCharCode(parseInt(idx[j], 10));\n        rows[i][\"{#RADIUSGROUP}\"] = s;\n    } else {\n        rows[i][\"{#RADIUSGROUP}\"] = \"unknown\";\n    }\n    var t = String(rows[i][\"{#RADIUSTYPE}\"] || \"\");\n    rows[i][\"{#RADIUSTYPENAME}\"] = (t === \"1\") ? \"auth\" : (t === \"2\") ? \"acct\" : \"type-\" + t;\n}\nreturn JSON.stringify(rows);"
+      - type: DISCARD_UNCHANGED_HEARTBEAT
+        parameters:
+        - 1h
+      item_prototypes:
+      - uuid: 64da439b3be54552be66eed9abf68fd1
+        name: 'BNG RADIUS [{#RADIUSGROUP}] {#RADIUSTYPENAME} {#RADIUSIP}:{#RADIUSPORT} [{#RADIUSVRF}]: Responses total'
+        type: DEPENDENT
+        key: huawei.ne8k.bng.radius.responses[{#SNMPINDEX}]
+        master_item:
+          key: huawei.ne8k.bng.radius.walk
+        history: 7d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.5.25.40.15.1.2.1.12.{#SNMPINDEX}
+          - '0'
+        trends: 30d
+        tags:
+        - tag: component
+          value: radius
+        - tag: scope
+          value: bng
+        - tag: radius_group
+          value: '{#RADIUSGROUP}'
+        - tag: radius_type
+          value: '{#RADIUSTYPENAME}'
+    - uuid: 0a8273d2099a4c969b3e4a0b71cc34fe
+      name: 'BNG: AAA offline reason discovery'
+      type: DEPENDENT
+      key: huawei.ne8k.bng.offline.reason.discovery
+      master_item:
+        key: huawei.ne8k.bng.offline.reason.walk
+      lifetime: 30d
+      description: Descobre códigos de motivo da hwOfflineReasonStatTable. A v1 mantém os códigos numéricos sem tentar traduzir motivos não validados.
+      preprocessing:
+      - type: SNMP_WALK_TO_JSON
+        parameters:
+        - '{#REASON}'
+        - 1.3.6.1.4.1.2011.5.2.1.34.1.1
+        - '0'
+      - type: DISCARD_UNCHANGED_HEARTBEAT
+        parameters:
+        - 1h
+      item_prototypes:
+      - uuid: 03791faa46864efda6682d4221756d71
+        name: 'BNG AAA reason {#REASON}: Offline events total'
+        type: DEPENDENT
+        key: huawei.ne8k.bng.offline.reason.total[{#SNMPINDEX}]
+        master_item:
+          key: huawei.ne8k.bng.offline.reason.walk
+        history: 7d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.5.2.1.34.1.2.{#SNMPINDEX}
+          - '0'
+        trends: 30d
+        tags:
+        - tag: component
+          value: aaa-reason
+        - tag: scope
+          value: bng
+        - tag: reason
+          value: '{#REASON}'
+      - uuid: 056b5bf3c81743798826c5a5c9e45186
+        name: 'BNG AAA reason {#REASON}: Login failure events total'
+        type: DEPENDENT
+        key: huawei.ne8k.bng.online.fail.reason.total[{#SNMPINDEX}]
+        master_item:
+          key: huawei.ne8k.bng.offline.reason.walk
+        history: 7d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2011.5.2.1.34.1.3.{#SNMPINDEX}
+          - '0'
+        trends: 30d
+        tags:
+        - tag: component
+          value: aaa-reason
+        - tag: scope
+          value: bng
+        - tag: reason
+          value: '{#REASON}'
+    tags:
+    - tag: class
+      value: network
+    - tag: target
+      value: bng
+    - tag: vendor
+      value: Huawei
+    - tag: model
+      value: NetEngine 8000
+    macros:
+    - macro: '{$BNG.DOMAIN.MATCHES}'
+      value: .*
+      description: Regex de domains AAA a descobrir.
+    - macro: '{$BNG.DOMAIN.NOT_MATCHES}'
+      value: ^(default|default0|default1|default_admin)$
+      description: Domains administrativos/padrão ignorados por default.
+    - macro: '{$BNG.POOL.MATCHES}'
+      value: .*
+      description: Regex de pools IPv4 a descobrir.
+    - macro: '{$BNG.POOL.NOT_MATCHES}'
+      value: ^$
+      description: Regex de pools IPv4 a excluir.
+    - macro: '{$BNG.BAS.MATCHES}'
+      value: .*
+      description: Regex de interfaces BAS a descobrir.
+    - macro: '{$BNG.BAS.NOT_MATCHES}'
+      value: ^$
+      description: Regex de interfaces BAS a excluir.
+    - macro: '{$BNG.BAS.IFINDEX.MATCHES}'
+      value: .*
+      description: Regex de ifIndex permitidos na descoberta de VLAN.
+    - macro: '{$BNG.VLAN.MATCHES}'
+      value: .*
+      description: Regex das VLANs a descobrir. Por padrão mantém todas as VLANs configuradas, inclusive com zero usuários.
+    - macro: '{$BNG.VLAN.NOT_MATCHES}'
+      value: ^$
+      description: Regex das VLANs a excluir.
+    - macro: '{$BNG.RADIUS.IP.MATCHES}'
+      value: .*
+      description: Regex dos IPs RADIUS a descobrir.
+    - macro: '{$BNG.RADIUS.VRF.MATCHES}'
+      value: .*
+      description: Regex das VRFs RADIUS a descobrir.
+    - macro: '{$BNG.IPPOOL.WARN}'
+      value: '80'
+      description: Percentual de utilização de pool para Warning.
+    - macro: '{$BNG.IPPOOL.HIGH}'
+      value: '90'
+      description: Percentual de utilização de pool para High.
