@@ -1,0 +1,705 @@
+zabbix_export:
+  version: '7.4'
+  template_groups:
+  - uuid: 30fd0cb871854853b72615384f752f32
+    name: Templates/Network/ZTE
+  templates:
+  - uuid: 2bdd4e3f51924dd19b20057d967d7687
+    template: templete zabbix olt c6xx emerson.ricardo
+    name: templete zabbix olt c6xx emerson.ricardo
+    description: v2 baseada em coletas SNMP de C610 e C620, ambas V1.2.2, em 13/10/2026.
+      Compatibilidade de OIDs conferida offline; importacao e coleta no Zabbix ainda
+      pendentes. Recursos CPU/memoria descobertos por indice e nome MPU/PFU. PONs
+      descobertas por ifName para evitar contar entradas adicionais da tabela C620.
+      PON zero-online desativado por macro ate confronto com CLI. Optica por ONU,
+      FAN e estados proprietarios aguardam MIB/CLI. Host requer interface SNMP v2c;
+      community nao incluida. Nao vincular simultaneamente com v1 devido a chaves
+      compartilhadas. Prefixo interno zte.c610 preservado.
+    groups:
+    - name: Templates/Network/ZTE
+    items:
+    - uuid: c73fedf3aa2241c196ff91d6aa65362d
+      name: 'Sistema: Descricao'
+      type: SNMP_AGENT
+      key: zte.c610.system.description
+      delay: 1h
+      history: 7d
+      trends: '0'
+      value_type: TEXT
+      tags:
+      - tag: component
+        value: system
+      snmp_oid: 1.3.6.1.2.1.1.1.0
+    - uuid: 51783f22728649a3a04afc4ccff31547
+      name: 'Sistema: Nome'
+      type: SNMP_AGENT
+      key: zte.c610.system.name
+      delay: 1h
+      history: 7d
+      trends: '0'
+      value_type: TEXT
+      tags:
+      - tag: component
+        value: system
+      snmp_oid: 1.3.6.1.2.1.1.5.0
+    - uuid: 8f5ce8a1bfad4d6085428fb06b6b7b29
+      name: 'Sistema: Localizacao'
+      type: SNMP_AGENT
+      key: zte.c610.system.location
+      delay: 1h
+      history: 7d
+      trends: '0'
+      value_type: TEXT
+      tags:
+      - tag: component
+        value: system
+      snmp_oid: 1.3.6.1.2.1.1.6.0
+    - uuid: acd817391cd04c209f1110b8a4537bf6
+      name: 'Sistema: Identificador'
+      type: SNMP_AGENT
+      key: zte.c610.system.objectid
+      delay: 1h
+      history: 7d
+      trends: '0'
+      value_type: TEXT
+      tags:
+      - tag: component
+        value: system
+      snmp_oid: 1.3.6.1.2.1.1.2.0
+    - uuid: 3a0c867db4c34af698c7b565cfd8f1ae
+      name: 'Sistema: Uptime SNMP'
+      type: SNMP_AGENT
+      key: zte.c610.uptime
+      delay: 1m
+      history: 7d
+      trends: 365d
+      value_type: UNSIGNED
+      tags:
+      - tag: component
+        value: system
+      snmp_oid: 1.3.6.1.2.1.1.3.0
+      units: uptime
+      preprocessing:
+      - type: MULTIPLIER
+        parameters:
+        - '0.01'
+      triggers:
+      - uuid: ae8a57be9d164135a72f422db329f42b
+        name: 'OLT: sem dados de uptime SNMP por {$SNMP.NODATA}'
+        expression: nodata(/templete zabbix olt c6xx emerson.ricardo/zte.c610.uptime,{$SNMP.NODATA})=1
+        priority: HIGH
+        tags:
+        - tag: component
+          value: system
+      - uuid: 8fb34833eefe4e85a18a796de51eb35b
+        name: 'OLT: agente SNMP reiniciado recentemente'
+        expression: last(/templete zabbix olt c6xx emerson.ricardo/zte.c610.uptime)<600
+        priority: INFO
+        tags:
+        - tag: component
+          value: system
+    discovery_rules:
+    - uuid: 7df90100125c4cf7a5bbd1e1acefabf2
+      name: Descoberta de interfaces fisicas
+      type: SNMP_AGENT
+      snmp_oid: discovery[{#IFNAME},1.3.6.1.2.1.31.1.1.1.1]
+      key: zte.c610.if.discovery
+      delay: 6h
+      lifetime: 7d
+      enabled_lifetime_type: DISABLE_AFTER
+      enabled_lifetime: 1d
+      item_prototypes:
+      - uuid: cb30adab329242d0b9001ef1c93eaf64
+        name: 'Interface {#IFNAME}: Estado administrativo'
+        type: SNMP_AGENT
+        key: zte.c610.if.admin[{#SNMPINDEX}]
+        delay: 1m
+        history: 7d
+        trends: 365d
+        value_type: UNSIGNED
+        tags:
+        - tag: component
+          value: interfaces
+        - tag: interface
+          value: '{#IFNAME}'
+        snmp_oid: 1.3.6.1.2.1.2.2.1.7.{#SNMPINDEX}
+        valuemap:
+          name: Administrative state
+      - uuid: d9939d063fdf41f0a531bff1b4e98dc6
+        name: 'Interface {#IFNAME}: Estado operacional'
+        type: SNMP_AGENT
+        key: zte.c610.if.oper[{#SNMPINDEX}]
+        delay: 1m
+        history: 7d
+        trends: 365d
+        value_type: UNSIGNED
+        tags:
+        - tag: component
+          value: interfaces
+        - tag: interface
+          value: '{#IFNAME}'
+        snmp_oid: 1.3.6.1.2.1.2.2.1.8.{#SNMPINDEX}
+        valuemap:
+          name: Interface state
+        trigger_prototypes:
+        - uuid: 76eb821cacd2498f99b30c24679473ee
+          name: 'Interface {#IFNAME}: link down por 3m'
+          expression: '{$IF.MONITOR:"{#IFNAME}"}=1 and last(/templete zabbix olt c6xx
+            emerson.ricardo/zte.c610.if.admin[{#SNMPINDEX}])=1 and min(/templete zabbix
+            olt c6xx emerson.ricardo/zte.c610.if.oper[{#SNMPINDEX}],3m)=2 and max(/templete
+            zabbix olt c6xx emerson.ricardo/zte.c610.if.oper[{#SNMPINDEX}],3m)=2'
+          priority: HIGH
+          tags:
+          - tag: component
+            value: interfaces
+      - uuid: 3f1c9590566b41c085aa3c22cd9e37e5
+        name: 'Interface {#IFNAME}: Velocidade'
+        type: SNMP_AGENT
+        key: zte.c610.if.speed[{#SNMPINDEX}]
+        delay: 1h
+        history: 7d
+        trends: 365d
+        value_type: UNSIGNED
+        tags:
+        - tag: component
+          value: interfaces
+        - tag: interface
+          value: '{#IFNAME}'
+        snmp_oid: 1.3.6.1.2.1.31.1.1.1.15.{#SNMPINDEX}
+        units: bps
+        preprocessing:
+        - type: MULTIPLIER
+          parameters:
+          - '1000000'
+      - uuid: d494fbbdd60d4373a5cb66a0cd9bd561
+        name: 'Interface {#IFNAME}: Bits recebidos'
+        type: SNMP_AGENT
+        key: zte.c610.if.in[{#SNMPINDEX}]
+        delay: 1m
+        history: 7d
+        trends: 365d
+        value_type: FLOAT
+        tags:
+        - tag: component
+          value: interfaces
+        - tag: interface
+          value: '{#IFNAME}'
+        snmp_oid: 1.3.6.1.2.1.31.1.1.1.6.{#SNMPINDEX}
+        preprocessing:
+        - type: CHANGE_PER_SECOND
+        - type: MULTIPLIER
+          parameters:
+          - '8'
+        units: bps
+      - uuid: dcb09acf31f54409a0867a6da80d4d2c
+        name: 'Interface {#IFNAME}: Bits enviados'
+        type: SNMP_AGENT
+        key: zte.c610.if.out[{#SNMPINDEX}]
+        delay: 1m
+        history: 7d
+        trends: 365d
+        value_type: FLOAT
+        tags:
+        - tag: component
+          value: interfaces
+        - tag: interface
+          value: '{#IFNAME}'
+        snmp_oid: 1.3.6.1.2.1.31.1.1.1.10.{#SNMPINDEX}
+        preprocessing:
+        - type: CHANGE_PER_SECOND
+        - type: MULTIPLIER
+          parameters:
+          - '8'
+        units: bps
+      - uuid: d943cf9170d2416c8df5929274609bc6
+        name: 'Interface {#IFNAME}: Erros de entrada por segundo'
+        type: SNMP_AGENT
+        key: zte.c610.if.in.errors[{#SNMPINDEX}]
+        delay: 1m
+        history: 7d
+        trends: 365d
+        value_type: FLOAT
+        tags:
+        - tag: component
+          value: interfaces
+        - tag: interface
+          value: '{#IFNAME}'
+        snmp_oid: 1.3.6.1.2.1.2.2.1.14.{#SNMPINDEX}
+        preprocessing:
+        - type: CHANGE_PER_SECOND
+        trigger_prototypes:
+        - uuid: 343d784bcfec4a40b47bc37d690c76a3
+          name: 'Interface {#IFNAME}: Erros de entrada por segundo acima do limite
+            por 5m'
+          expression: min(/templete zabbix olt c6xx emerson.ricardo/zte.c610.if.in.errors[{#SNMPINDEX}],5m)>{$IF.ERRORS.WARN}
+          priority: WARNING
+          tags:
+          - tag: component
+            value: interfaces
+      - uuid: 07085d45c5c94963a7caf0e45b271b0d
+        name: 'Interface {#IFNAME}: Erros de saida por segundo'
+        type: SNMP_AGENT
+        key: zte.c610.if.out.errors[{#SNMPINDEX}]
+        delay: 1m
+        history: 7d
+        trends: 365d
+        value_type: FLOAT
+        tags:
+        - tag: component
+          value: interfaces
+        - tag: interface
+          value: '{#IFNAME}'
+        snmp_oid: 1.3.6.1.2.1.2.2.1.20.{#SNMPINDEX}
+        preprocessing:
+        - type: CHANGE_PER_SECOND
+        trigger_prototypes:
+        - uuid: 7d43a3238b0f4751a8f4f2e47f07c18f
+          name: 'Interface {#IFNAME}: Erros de saida por segundo acima do limite por
+            5m'
+          expression: min(/templete zabbix olt c6xx emerson.ricardo/zte.c610.if.out.errors[{#SNMPINDEX}],5m)>{$IF.ERRORS.WARN}
+          priority: WARNING
+          tags:
+          - tag: component
+            value: interfaces
+      - uuid: 4bef26ffdb4a487da1f8038a6e302e1e
+        name: 'Interface {#IFNAME}: Descartes de entrada por segundo'
+        type: SNMP_AGENT
+        key: zte.c610.if.in.discards[{#SNMPINDEX}]
+        delay: 1m
+        history: 7d
+        trends: 365d
+        value_type: FLOAT
+        tags:
+        - tag: component
+          value: interfaces
+        - tag: interface
+          value: '{#IFNAME}'
+        snmp_oid: 1.3.6.1.2.1.2.2.1.13.{#SNMPINDEX}
+        preprocessing:
+        - type: CHANGE_PER_SECOND
+      - uuid: cb7a8e8c2e3f4e8ba60508d59b6838e3
+        name: 'Interface {#IFNAME}: Descartes de saida por segundo'
+        type: SNMP_AGENT
+        key: zte.c610.if.out.discards[{#SNMPINDEX}]
+        delay: 1m
+        history: 7d
+        trends: 365d
+        value_type: FLOAT
+        tags:
+        - tag: component
+          value: interfaces
+        - tag: interface
+          value: '{#IFNAME}'
+        snmp_oid: 1.3.6.1.2.1.2.2.1.19.{#SNMPINDEX}
+        preprocessing:
+        - type: CHANGE_PER_SECOND
+      filter:
+        conditions:
+        - macro: '{#IFNAME}'
+          value: '{$IF.NAME.MATCHES}'
+          operator: MATCHES_REGEX
+          formulaid: A
+      graph_prototypes:
+      - uuid: 429f3de0e50540c3a7127c2fbe2d2f39
+        name: 'Interface {#IFNAME}: Trafego'
+        graph_items:
+        - sortorder: '0'
+          color: 199C0D
+          item:
+            host: templete zabbix olt c6xx emerson.ricardo
+            key: zte.c610.if.in[{#SNMPINDEX}]
+        - sortorder: '1'
+          color: 2774A4
+          item:
+            host: templete zabbix olt c6xx emerson.ricardo
+            key: zte.c610.if.out[{#SNMPINDEX}]
+      - uuid: eb5980a2d4894d7e98691327f0eb0ec1
+        name: 'Interface {#IFNAME}: Erros'
+        graph_items:
+        - sortorder: '0'
+          color: 199C0D
+          item:
+            host: templete zabbix olt c6xx emerson.ricardo
+            key: zte.c610.if.in.errors[{#SNMPINDEX}]
+        - sortorder: '1'
+          color: 2774A4
+          item:
+            host: templete zabbix olt c6xx emerson.ricardo
+            key: zte.c610.if.out.errors[{#SNMPINDEX}]
+    - uuid: 65c9bc10e09b4f288eb571000919ddbf
+      name: Descoberta de PONs
+      type: SNMP_AGENT
+      snmp_oid: discovery[{#PON},1.3.6.1.2.1.31.1.1.1.1,{#AUTHORIZED},1.3.6.1.4.1.3902.1082.500.10.2.2.3.1.14]
+      key: zte.c610.pon.discovery
+      delay: 6h
+      lifetime: 7d
+      enabled_lifetime_type: DISABLE_AFTER
+      enabled_lifetime: 1d
+      item_prototypes:
+      - uuid: 2b2e33be6621445b9d73a82448c4a749
+        name: 'PON {#PON}: ONUs Autorizadas'
+        type: SNMP_AGENT
+        key: zte.c610.pon.authorized[{#SNMPINDEX}]
+        delay: 2m
+        history: 7d
+        trends: 365d
+        value_type: UNSIGNED
+        tags:
+        - tag: component
+          value: pon
+        - tag: pon
+          value: '{#PON}'
+        snmp_oid: 1.3.6.1.4.1.3902.1082.500.10.2.2.3.1.14.{#SNMPINDEX}
+      - uuid: bcf83f77f2e744ef9d65abcee0d50ae5
+        name: 'PON {#PON}: ONUs Online'
+        type: SNMP_AGENT
+        key: zte.c610.pon.online[{#SNMPINDEX}]
+        delay: 2m
+        history: 7d
+        trends: 365d
+        value_type: UNSIGNED
+        tags:
+        - tag: component
+          value: pon
+        - tag: pon
+          value: '{#PON}'
+        snmp_oid: 1.3.6.1.4.1.3902.1082.500.10.2.2.3.1.15.{#SNMPINDEX}
+        trigger_prototypes:
+        - uuid: 701d2d118bf54ac8b30914413874accf
+          name: 'PON {#PON}: nenhuma ONU online por 5m'
+          expression: '{$PON.MONITOR:"{#PON}"}=1 and last(/templete zabbix olt c6xx
+            emerson.ricardo/zte.c610.pon.authorized[{#SNMPINDEX}])>0 and max(/templete
+            zabbix olt c6xx emerson.ricardo/zte.c610.pon.online[{#SNMPINDEX}],5m)=0'
+          priority: HIGH
+          tags:
+          - tag: component
+            value: pon
+      - uuid: e845daedd20f433bb1e169d341dbd190
+        name: 'PON {#PON}: ONUs offline (autorizadas menos online)'
+        type: CALCULATED
+        key: zte.c610.pon.offline[{#SNMPINDEX}]
+        delay: 2m
+        history: 7d
+        trends: 365d
+        value_type: FLOAT
+        tags:
+        - tag: component
+          value: pon
+        - tag: pon
+          value: '{#PON}'
+        params: last(//zte.c610.pon.authorized[{#SNMPINDEX}])-last(//zte.c610.pon.online[{#SNMPINDEX}])
+        description: Diferenca dos contadores. Coletas nao sao atomicas; confirmar
+          definicao das contagens com CLI.
+        preprocessing:
+        - type: IN_RANGE
+          parameters:
+          - '0'
+          - ''
+          error_handler: DISCARD_VALUE
+      filter:
+        conditions:
+        - macro: '{#PON}'
+          value: ^gpon_olt
+          operator: MATCHES_REGEX
+          formulaid: A
+        - macro: '{#AUTHORIZED}'
+          value: ^[0-9]+$
+          operator: MATCHES_REGEX
+          formulaid: B
+        evaltype: AND
+      graph_prototypes:
+      - uuid: 40ac8725c684409ba34dbc6c9060d38e
+        name: 'PON {#PON}: ONUs'
+        graph_items:
+        - sortorder: '0'
+          color: 199C0D
+          item:
+            host: templete zabbix olt c6xx emerson.ricardo
+            key: zte.c610.pon.authorized[{#SNMPINDEX}]
+        - sortorder: '1'
+          color: 2774A4
+          item:
+            host: templete zabbix olt c6xx emerson.ricardo
+            key: zte.c610.pon.online[{#SNMPINDEX}]
+        - sortorder: '2'
+          color: F63100
+          item:
+            host: templete zabbix olt c6xx emerson.ricardo
+            key: zte.c610.pon.offline[{#SNMPINDEX}]
+    - uuid: 5576527ec08e409b9e019439f87e88b8
+      name: Descoberta de placas presentes
+      type: SNMP_AGENT
+      snmp_oid: discovery[{#CARD},1.3.6.1.4.1.3902.1082.10.1.2.4.1.4.1.1]
+      key: zte.c610.card.discovery
+      delay: 6h
+      lifetime: 7d
+      enabled_lifetime_type: DISABLE_AFTER
+      enabled_lifetime: 1d
+      item_prototypes:
+      - uuid: 0ef2d76c22b84c519cb8b1bf55e59dc5
+        name: 'Placa {#SNMPINDEX} {#CARD}: Modelo'
+        type: SNMP_AGENT
+        key: zte.c610.card.model[{#SNMPINDEX}]
+        delay: 6h
+        history: 7d
+        trends: '0'
+        value_type: TEXT
+        tags:
+        - tag: component
+          value: inventory
+        snmp_oid: 1.3.6.1.4.1.3902.1082.10.1.2.4.1.4.1.1.{#SNMPINDEX}
+      filter:
+        conditions:
+        - macro: '{#CARD}'
+          value: .+
+          operator: MATCHES_REGEX
+          formulaid: A
+    - uuid: e27b094251c34357b4dd656084b67d26
+      name: Descoberta de fontes
+      type: SNMP_AGENT
+      snmp_oid: discovery[{#PSU},1.3.6.1.4.1.3902.3.6002.2.6.2.1.10]
+      key: zte.c610.psu.discovery
+      delay: 6h
+      lifetime: 7d
+      enabled_lifetime_type: DISABLE_AFTER
+      enabled_lifetime: 1d
+      item_prototypes:
+      - uuid: 12c094a5c08b44c39d2cc58594834d29
+        name: 'Fonte {#SNMPINDEX}: Modelo'
+        type: SNMP_AGENT
+        key: zte.c610.psu.model[{#SNMPINDEX}]
+        delay: 6h
+        history: 7d
+        trends: '0'
+        value_type: TEXT
+        tags:
+        - tag: component
+          value: power
+        snmp_oid: 1.3.6.1.4.1.3902.3.6002.2.6.2.1.10.{#SNMPINDEX}
+      - uuid: df9c4907a1574a72bdca4a92d8e83c4c
+        name: 'Fonte {#SNMPINDEX}: Potencia nominal'
+        type: SNMP_AGENT
+        key: zte.c610.psu.rated[{#SNMPINDEX}]
+        delay: 5m
+        history: 7d
+        trends: 365d
+        value_type: FLOAT
+        tags:
+        - tag: component
+          value: power
+        snmp_oid: 1.3.6.1.4.1.3902.3.6002.2.6.2.1.16.{#SNMPINDEX}
+        units: W
+        preprocessing:
+        - type: REGEX
+          parameters:
+          - ^\s*([-+]?[0-9]+(?:\.[0-9]+)?)
+          - \1
+          error_handler: DISCARD_VALUE
+      - uuid: 13730e374aa747be8ec62b389d425337
+        name: 'Fonte {#SNMPINDEX}: Potencia consumida'
+        type: SNMP_AGENT
+        key: zte.c610.psu.power[{#SNMPINDEX}]
+        delay: 5m
+        history: 7d
+        trends: 365d
+        value_type: FLOAT
+        tags:
+        - tag: component
+          value: power
+        snmp_oid: 1.3.6.1.4.1.3902.3.6002.2.6.2.1.17.{#SNMPINDEX}
+        units: W
+        preprocessing:
+        - type: REGEX
+          parameters:
+          - ^\s*([-+]?[0-9]+(?:\.[0-9]+)?)
+          - \1
+          error_handler: DISCARD_VALUE
+      - uuid: 7d27e26b8cfc444e893871bc9938e18f
+        name: 'Fonte {#SNMPINDEX}: Utilizacao'
+        type: SNMP_AGENT
+        key: zte.c610.psu.usage[{#SNMPINDEX}]
+        delay: 5m
+        history: 7d
+        trends: 365d
+        value_type: FLOAT
+        tags:
+        - tag: component
+          value: power
+        snmp_oid: 1.3.6.1.4.1.3902.3.6002.2.6.2.1.18.{#SNMPINDEX}
+        units: '%'
+        preprocessing:
+        - type: REGEX
+          parameters:
+          - ^\s*([-+]?[0-9]+(?:\.[0-9]+)?)
+          - \1
+          error_handler: DISCARD_VALUE
+      - uuid: f829b5edef784649a847f482c961e9db
+        name: 'Fonte {#SNMPINDEX}: Temperatura'
+        type: SNMP_AGENT
+        key: zte.c610.psu.temperature[{#SNMPINDEX}]
+        delay: 5m
+        history: 7d
+        trends: 365d
+        value_type: FLOAT
+        tags:
+        - tag: component
+          value: power
+        snmp_oid: 1.3.6.1.4.1.3902.3.6002.2.6.2.1.19.{#SNMPINDEX}
+        units: C
+        preprocessing:
+        - type: REGEX
+          parameters:
+          - ^\s*([-+]?[0-9]+(?:\.[0-9]+)?)
+          - \1
+          error_handler: DISCARD_VALUE
+        trigger_prototypes:
+        - uuid: 5d3be7e939d74e4599deea4021b9c7ad
+          name: 'Fonte {#SNMPINDEX}: temperatura elevada por 5m'
+          expression: min(/templete zabbix olt c6xx emerson.ricardo/zte.c610.psu.temperature[{#SNMPINDEX}],5m)>{$PSU.TEMP.WARN}
+          priority: WARNING
+          tags:
+          - tag: component
+            value: power
+      filter:
+        conditions:
+        - macro: '{#PSU}'
+          value: .+
+          operator: MATCHES_REGEX
+          formulaid: A
+      graph_prototypes:
+      - uuid: 4c8182f8227f4940bd3ce926cb31f294
+        name: 'Fonte {#SNMPINDEX}: Potencia'
+        graph_items:
+        - sortorder: '0'
+          color: 199C0D
+          item:
+            host: templete zabbix olt c6xx emerson.ricardo
+            key: zte.c610.psu.power[{#SNMPINDEX}]
+      - uuid: 8ba46ba2563b4c68932fcb0f4cf143df
+        name: 'Fonte {#SNMPINDEX}: Temperatura'
+        graph_items:
+        - sortorder: '0'
+          color: 199C0D
+          item:
+            host: templete zabbix olt c6xx emerson.ricardo
+            key: zte.c610.psu.temperature[{#SNMPINDEX}]
+    - uuid: eef084715f5149d9b4bbf9a344e7c07b
+      name: Descoberta de recursos MPU PFU
+      type: SNMP_AGENT
+      snmp_oid: discovery[{#RESOURCE},1.3.6.1.4.1.3902.3.6002.2.1.1.13]
+      key: zte.c610.resource.discovery
+      delay: 6h
+      lifetime: 7d
+      enabled_lifetime_type: DISABLE_AFTER
+      enabled_lifetime: 1d
+      filter:
+        conditions:
+        - macro: '{#RESOURCE}'
+          value: .+
+          operator: MATCHES_REGEX
+          formulaid: A
+      item_prototypes:
+      - uuid: 5a3fdc3e370f4543b5e2a2a8c23a69e9
+        name: 'Recurso {#RESOURCE}: CPU'
+        type: SNMP_AGENT
+        snmp_oid: 1.3.6.1.4.1.3902.3.6002.2.1.1.8.{#SNMPINDEX}
+        key: zte.c610.resource.cpu[{#SNMPINDEX}]
+        delay: 1m
+        history: 7d
+        trends: 365d
+        value_type: UNSIGNED
+        units: '%'
+        tags:
+        - tag: component
+          value: resources
+        - tag: resource
+          value: '{#RESOURCE}'
+        trigger_prototypes:
+        - uuid: 6bb4875c65a64290b7ab56d7de35abcb
+          name: 'Recurso {#RESOURCE}: CPU acima do limite por 5m'
+          expression: min(/templete zabbix olt c6xx emerson.ricardo/zte.c610.resource.cpu[{#SNMPINDEX}],5m)>{$CPU.WARN}
+          priority: WARNING
+          tags:
+          - tag: component
+            value: resources
+      - uuid: efc34d9f3c764aa2baf5d2b8a4639c21
+        name: 'Recurso {#RESOURCE}: Memoria'
+        type: SNMP_AGENT
+        snmp_oid: 1.3.6.1.4.1.3902.3.6002.2.1.1.6.{#SNMPINDEX}
+        key: zte.c610.resource.memory[{#SNMPINDEX}]
+        delay: 1m
+        history: 7d
+        trends: 365d
+        value_type: UNSIGNED
+        units: '%'
+        tags:
+        - tag: component
+          value: resources
+        - tag: resource
+          value: '{#RESOURCE}'
+        trigger_prototypes:
+        - uuid: 9abcc3de31104ae3889a96117e9587ce
+          name: 'Recurso {#RESOURCE}: Memoria acima do limite por 5m'
+          expression: min(/templete zabbix olt c6xx emerson.ricardo/zte.c610.resource.memory[{#SNMPINDEX}],5m)>{$MEMORY.WARN}
+          priority: WARNING
+          tags:
+          - tag: component
+            value: resources
+      graph_prototypes:
+      - uuid: 8e915d480a3947bd8fffd49da7846d11
+        name: 'Recurso {#RESOURCE}: CPU e memoria'
+        graph_items:
+        - sortorder: '0'
+          color: 199C0D
+          item:
+            host: templete zabbix olt c6xx emerson.ricardo
+            key: zte.c610.resource.cpu[{#SNMPINDEX}]
+        - sortorder: '1'
+          color: 2774A4
+          item:
+            host: templete zabbix olt c6xx emerson.ricardo
+            key: zte.c610.resource.memory[{#SNMPINDEX}]
+    macros:
+    - macro: '{$CPU.WARN}'
+      value: '80'
+    - macro: '{$MEMORY.WARN}'
+      value: '85'
+    - macro: '{$SNMP.NODATA}'
+      value: 10m
+    - macro: '{$IF.NAME.MATCHES}'
+      value: ^(xgei|gei|gpon_olt)[-_/].*
+    - macro: '{$IF.MONITOR}'
+      value: '1'
+    - macro: '{$IF.ERRORS.WARN}'
+      value: '10'
+    - macro: '{$PON.MONITOR}'
+      value: '0'
+    - macro: '{$PSU.TEMP.WARN}'
+      value: '60'
+    valuemaps:
+    - uuid: 4bb188a51c8f4acf8fc74ba0e00bd0c2
+      name: Interface state
+      mappings:
+      - value: '1'
+        newvalue: Up
+      - value: '2'
+        newvalue: Down
+      - value: '3'
+        newvalue: Testing
+      - value: '4'
+        newvalue: Unknown
+      - value: '5'
+        newvalue: Dormant
+      - value: '6'
+        newvalue: Not present
+      - value: '7'
+        newvalue: Lower layer down
+    - uuid: df61fc39d7894b87a5f8160a352bd800
+      name: Administrative state
+      mappings:
+      - value: '1'
+        newvalue: Up
+      - value: '2'
+        newvalue: Down
+      - value: '3'
+        newvalue: Testing
