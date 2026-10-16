@@ -1,0 +1,45 @@
+{
+  "thresholds": {
+    "tempWarn": 45,
+    "tempCrit": 55,
+    "lifeWarn": 80,
+    "lifeCrit": 20,
+    "bbuChargeWarn": 80,
+    "bbuChargeCrit": 50,
+    "bbuTempWarn": 45,
+    "bbuTempCrit": 55,
+    "staleMinutes": 15
+  },
+  "defaultHost": {
+    "modelo": "Dell PowerEdge",
+    "controladora": "PERC H700",
+    "firmware": "",
+    "raid": "—",
+    "capacidade": "—",
+    "composicao": "",
+    "cachePadrao": "WriteBack",
+    "vd": "Virtual Disk 0"
+  },
+  "hosts": {
+    "nodepaulodc01": {
+      "modelo": "Dell PowerEdge R710",
+      "controladora": "PERC H700 Integrated",
+      "firmware": "12.10.7-0001",
+      "raid": "RAID 10",
+      "capacidade": "931.00 GB",
+      "composicao": "4x 500GB SSD"
+    },
+    "nodepedrodc01": {
+      "modelo": "Dell PowerEdge R410",
+      "controladora": "PERC H700 Adapter",
+      "firmware": "12.10.6-0002",
+      "raid": "RAID 1",
+      "capacidade": "465.50 GB",
+      "composicao": "+ 2x Hot-Spare"
+    }
+  },
+  "problemFilter": "BBU|Bateria|Battery|SSD|Slot|Disk|Disco|RAID|PERC|MegaCLI|Cache|WriteThrough|Virtual|Controladora|Controller|SMART|Media|Predictive",
+  "zabbixLabel": "Zabbix Server",
+  "outputFile": "/var/log/megacli_status.json",
+  "daemon": "Daemon: zabbix-agent2 (UserParameter MegaCLI sudo wrapper)"
+}
