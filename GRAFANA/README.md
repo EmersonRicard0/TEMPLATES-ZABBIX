@@ -5,6 +5,8 @@ Dashboard **Storage Health — Infraestrutura** (SSDs, RAID PERC e BBU via MegaC
 
 ![preview](storage-health/preview.png)
 
+![gráficos](storage-health/preview-charts.png)
+
 ## Importar
 
 1. Instale os plugins: `grafana-cli plugins install gapit-htmlgraphics-panel` e o Zabbix (`alexanderzobnin-zabbix-app`).

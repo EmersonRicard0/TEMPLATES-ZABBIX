@@ -345,46 +345,78 @@
 .ibar .bar-t { width: 70px; height: 6px; margin: 0; }
 
 /* --------------------------------------------------------------------------
- * <sh-chart> — séries temporais SVG + tooltip
+ * <sh-chart> — séries temporais SVG + tooltip + legenda em tabela
  * -------------------------------------------------------------------------- */
-.chart {
-  position: relative;
-  width: 100%;
+.chart-wrap {
   background: var(--bg);
   border: 1px solid var(--line);
   border-radius: 3px;
+  overflow: hidden;
+}
+
+.chart {
+  position: relative;
+  width: 100%;
 }
 .chart svg { display: block; }
+
 .chart .tt {
   position: absolute;
   z-index: 5;
   display: none;
+  min-width: 180px;
   padding: 6px 8px;
   background: var(--raised);
   border: 1px solid var(--line2);
   border-radius: 4px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, .45);
   color: var(--txt);
-  font: 500 11px/15px var(--mono);
+  font: 500 11px/16px var(--mono);
   white-space: nowrap;
   pointer-events: none;
 }
-
-.legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 16px;
-  padding: 6px 2px 0;
+.chart .tt-h {
+  margin-bottom: 4px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--line);
   color: var(--txt-2);
-  font: 500 10px/14px var(--mono);
 }
-.legend i {
-  display: inline-block;
-  width: 10px;
-  height: 2px;
-  margin-right: 4px;
-  vertical-align: middle;
+.chart .tt-r   { display: flex; justify-content: space-between; gap: 16px; }
+.chart .tt-r i { display: inline-block; width: 10px; height: 3px; margin-right: 6px; border-radius: 1px; vertical-align: middle; }
+
+.legend-tb {
+  max-height: 132px;
+  overflow-y: auto;
+  border-top: 1px solid var(--line);
 }
+.legend-tb:empty { display: none; }
+
+table.lg { width: 100%; border-collapse: collapse; }
+.lg th {
+  position: sticky;
+  top: 0;
+  padding: 4px 8px;
+  background: var(--thead);
+  color: var(--txt-2);
+  font: 600 10px/14px var(--mono);
+  letter-spacing: .06em;
+  text-align: right;
+  text-transform: uppercase;
+}
+.lg th:first-child { text-align: left; }
+.lg td {
+  padding: 3px 8px;
+  color: var(--txt-2);
+  font: 500 11px/14px var(--mono);
+  text-align: right;
+  white-space: nowrap;
+}
+.lg td.nm   { color: var(--txt); text-align: left; }
+.lg td.nm i { display: inline-block; width: 12px; height: 3px; margin-right: 8px; border-radius: 1px; vertical-align: middle; }
+.lg td.cur  { font-weight: 700; }
+.lg tr[data-s]       { cursor: pointer; }
+.lg tr[data-s]:hover { background: var(--raised); }
+.lg tr.off td        { opacity: .35; }
 
 /* --------------------------------------------------------------------------
  * <sh-table> — inventário / volumes / problemas
