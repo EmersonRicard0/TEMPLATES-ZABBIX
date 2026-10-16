@@ -464,7 +464,7 @@ class LineChartDirective {
     // grade Y
     ticks.forEach(v => {
       g += `<line x1="${P.l}" x2="${W - P.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="#2C3235" stroke-opacity=".6"/>`;
-      g += `<text x="${P.l - 8}" y="${Y(v) + 3}" text-anchor="end" fill="#8E8E93" font-size="10" font-family="monospace">${v}${spec.unit === '%' ? '%' : spec.unit}</text>`;
+      g += `<text x="${P.l - 8}" y="${Y(v) + 3}" text-anchor="end" class="ax">${v}${spec.unit === '%' ? '%' : spec.unit}</text>`;
     });
 
     // grade X
@@ -473,7 +473,7 @@ class LineChartDirective {
       const t = t0 + (t1 - t0) * i / nx;
       const date = t1 - t0 > 2 * 86400e3 ? new Date(t).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' ' : '';
       if (i > 0 && i < nx) g += `<line x1="${X(t)}" x2="${X(t)}" y1="${P.t}" y2="${bottom}" stroke="#2C3235" stroke-opacity=".35"/>`;
-      g += `<text x="${X(t)}" y="${Hh - 7}" text-anchor="${i === 0 ? 'start' : i === nx ? 'end' : 'middle'}" fill="#8E8E93" font-size="10" font-family="monospace">${date}${Pipes.hhmm(t)}</text>`;
+      g += `<text x="${X(t)}" y="${Hh - 7}" text-anchor="${i === 0 ? 'start' : i === nx ? 'end' : 'middle'}" class="ax">${date}${Pipes.hhmm(t)}</text>`;
     }
     g += `<line x1="${P.l}" x2="${W - P.r}" y1="${bottom}" y2="${bottom}" stroke="#363D44"/>`;
 
@@ -499,11 +499,11 @@ class LineChartDirective {
       const y = Y(th.v);
       g += `<line x1="${P.l}" x2="${W - P.r}" y1="${y}" y2="${y}" stroke="${th.color}" stroke-width="1" stroke-dasharray="5 4"/>`;
       g += `<rect x="${W - P.r - 6 - th.label.length * 6.1}" y="${y - 15}" width="${th.label.length * 6.1 + 6}" height="13" rx="2" fill="#111217" opacity=".85"/>`;
-      g += `<text x="${W - P.r - 3}" y="${y - 5}" text-anchor="end" fill="${th.color}" font-size="10" font-family="monospace">${esc(th.label)}</text>`;
+      g += `<text x="${W - P.r - 3}" y="${y - 5}" text-anchor="end" fill="${th.color}" class="thl">${esc(th.label)}</text>`;
     });
 
     if (!series.some(s => s.pts.length)) {
-      g += `<text x="${W / 2}" y="${Hh / 2}" text-anchor="middle" fill="#8E8E93" font-size="11" font-family="monospace">Sem dados no período</text>`;
+      g += `<text x="${W / 2}" y="${Hh / 2}" text-anchor="middle" class="nd">Sem dados no período</text>`;
     }
 
     g += `<g class="hv" visibility="hidden"><line class="xh" x1="0" x2="0" y1="${P.t}" y2="${bottom}" stroke="#8E8E93" stroke-dasharray="2 2"/>
@@ -678,7 +678,7 @@ class StorageHealthComponent {
 
   kpiTpl({ label, icon, acc, value, color, unit = '', extra = '', foot = '', alert = false }) {
     return `<div class="kpi${alert ? ' alert' : ''}" style="--acc:${acc}">
-      <div class="kpi-h"><span class="caps" style="color:${alert ? COLORS.crit : ''}">${label}</span>${Icons(icon)}</div>
+      <div class="kpi-h"><span class="lbl${alert ? ' c-crit' : ''}">${label}</span>${Icons(icon)}</div>
       <div class="kpi-v"><span class="big" style="color:${color || COLORS.txt}">${value}</span><span class="u">${unit}</span>${extra}</div>
       <div class="kpi-f"><span>${foot}</span></div>
     </div>`;
@@ -689,8 +689,8 @@ class StorageHealthComponent {
     return `<svg width="76" height="76" viewBox="0 0 76 76">
       <circle cx="38" cy="38" r="${r}" fill="none" stroke="#2a2f35" stroke-width="7"/>
       <circle cx="38" cy="38" r="${r}" fill="none" stroke="${color}" stroke-width="7" stroke-dasharray="${cir * v / 100} ${cir}" transform="rotate(-90 38 38)"/>
-      <text x="38" y="40" text-anchor="middle" fill="#F4F5F7" font-size="15" font-weight="700" font-family="Inter,sans-serif">${pct == null ? '—' : fmtN(pct) + '%'}</text>
-      <text x="38" y="52" text-anchor="middle" fill="#8E8E93" font-size="7" font-family="monospace">CARGA</text></svg>`;
+      <text x="38" y="40" text-anchor="middle" class="g-v">${pct == null ? '—' : fmtN(pct) + '%'}</text>
+      <text x="38" y="52" text-anchor="middle" class="g-l">CARGA</text></svg>`;
   }
 
   emptyTpl() {
@@ -708,20 +708,20 @@ class StorageHealthComponent {
     try { refresh = new URLSearchParams(window.location.search).get('refresh') || ''; } catch (e) { /* sem URL */ }
     return `<div class="bar stack">
       <div class="row">
-        <span class="ctl"><span class="caps lab">Servidores:</span>
+        <span class="ctl"><span class="lab">Servidores:</span>
           ${this.allHosts.map(h => `<span class="chip ${sel.includes(h) ? 'on' : ''}" data-act="host" data-h="${esc(h)}">${sel.includes(h) ? '✓' : ''} ${esc(h)}</span>`).join('')}
         </span>
-        <span class="ctl"><span class="caps lab">Disco:</span><select class="sel" data-act="disk">${diskOpts}</select></span>
-        <span class="ctl"><span class="caps lab">Período:</span><span class="pill">${esc(this.rangeLabel())}</span></span>
+        <span class="ctl"><span class="lab">Disco:</span><select class="sel" data-act="disk">${diskOpts}</select></span>
+        <span class="ctl"><span class="lab">Período:</span><span class="pill">${esc(this.rangeLabel())}</span></span>
         <span class="sp"></span>
         ${stale ? '<span class="bdg crit">● COLETOR ATRASADO</span>' : '<span class="bdg solidok">● COLETOR ATIVO</span>'}
-        <span class="mono dim">Último poll: ${last ? Pipes.hhmmss(last) : '—'}</span>
+        <span class="meta">Último poll: ${last ? Pipes.hhmmss(last) : '—'}</span>
       </div>
       <div class="row">
         ${stale ? `<span class="bdg warn">● DADOS DESATUALIZADOS (&gt; ${this.th.staleMinutes} min)</span>` : '<span class="bdg ok">● DADOS ATUALIZADOS / MEGACLI OK</span>'}
-        <span class="mono dim">Última coleta controladora: <b class="hi">${last ? Pipes.dayLabel(last) : '—'}</b> (${Pipes.ago(last)})</span>
+        <span class="meta">Última coleta controladora: <b class="hi">${last ? Pipes.dayLabel(last) : '—'}</b> (${Pipes.ago(last)})</span>
         <button class="btn" data-act="refresh">${Icons('refresh', '', 'width:13px;height:13px')} Atualizar agora</button>
-        <span class="mono dim3">Auto-refresh: ${esc(refresh || 'off')}</span>
+        <span class="meta dim3">Auto-refresh: ${esc(refresh || 'off')}</span>
       </div>
     </div>`;
   }
@@ -787,17 +787,17 @@ class StorageHealthComponent {
         : c.bbuDeg ? '<span class="bdg warn">BBU DEGRADADA</span> <span class="c-warn">Verificar ciclo de aprendizado</span>'
         : '<span class="bdg ok">BBU OK</span> <span class="c-ok">Bateria saudável</span>';
       return `<div class="pnl hc">
-        <div class="hc-h">${Icons('server', '', 'color:#D8D9DA')}<span class="nm">${esc(h.name)}</span><span class="mono dim">${esc(inf.modelo)}</span><span class="sp"></span>
+        <div class="hc-h">${Icons('server', '', 'color:#D8D9DA')}<span class="nm">${esc(h.name)}</span><span class="meta">${esc(inf.modelo)}</span><span class="sp"></span>
           <span class="pill" style="color:#aac7ff">${esc(inf.controladora)}${inf.firmware ? ' (FW: ' + esc(inf.firmware) + ')' : ''}</span></div>
         <div class="hc-b">
           <div>
-            <div class="caps dim" style="margin-bottom:4px">Volume RAID principal</div>
+            <div class="lbl">Volume RAID principal</div>
             <div class="kv">${c.volBad ? '<span class="bdg critl">Degraded</span>' : '<span class="bdg ok" style="text-transform:none">Optimal</span>'} <b class="hi">${esc(inf.raid)}</b></div>
             <div class="kv dim">Capacidade: <b class="hi">${esc(inf.capacidade)}</b>${inf.composicao ? ' (' + esc(inf.composicao) + ')' : ''}</div>
             <div class="kv ${pct === 100 ? 'c-ok' : 'c-warn'}">${n} Discos Descobertos / ${c.online} Online (${pct}%)</div>
           </div>
           <div>
-            <div class="caps dim" style="margin-bottom:4px">Controladora &amp; cache</div>
+            <div class="lbl">Controladora &amp; cache</div>
             <div class="kv">${bbuBadge}</div>
             <div class="kv dim">Cache: <span class="bdg ${c.writeThrough ? 'warn' : 'ok'}" style="text-transform:none">${esc(c.cacheNow)}</span> (Padrão: ${esc(inf.cachePadrao)})</div>
             ${c.writeThrough
@@ -825,7 +825,7 @@ class StorageHealthComponent {
     }).join('');
     return `<div class="pnl">
       <div class="ph"><h2>${Icons('chip', '', 'color:#D8D9DA')} Mapeamento de Baias &amp; Slots Lógicos da PERC</h2><span class="sp"></span>
-        <span class="mono dim" style="font-size:11px">Slots reportados pela controladora (numeração lógica de hardware, não reflete necessariamente posição física de baias)</span></div>
+        <span class="meta">Slots reportados pela controladora (numeração lógica de hardware, não reflete necessariamente posição física de baias)</span></div>
       ${groups}
     </div>`;
   }
@@ -880,7 +880,7 @@ class StorageHealthComponent {
       return `<tr>
         <td class="h">${esc(d.host)}</td>
         <td class="l">Slot ${esc(d.id)}</td>
-        <td>${esc(M.text(d, 'serial') || '—')}</td>
+        <td class="m">${esc(M.text(d, 'serial') || '—')}</td>
         <td><span class="bdg ${st.cls}">${esc(st.txt)}</span></td>
         <td class="${M.tempCls(temp)}">${temp == null ? '—' : fmtN(temp) + ' °C'}</td>
         <td><span class="ibar">${this.barTpl(life, M.lifeColor(life))}<b class="${M.lifeCls(life)}">${life == null ? '—' : fmtN(life) + '%'}</b></span></td>
@@ -888,7 +888,7 @@ class StorageHealthComponent {
       </tr>`;
     }).join('') : '<tr><td colspan="7" class="empty">Nenhum disco no filtro atual</td></tr>';
     return `<div class="pnl">
-      <div class="ph"><h2>Inventário e Telemetria Detalhada dos ${disks.length} SSDs</h2><span class="sp"></span><span class="mono dim">Smartctl / MegaCLI -adpallinfo / -pdlist -aALL</span></div>
+      <div class="ph"><h2>Inventário e Telemetria Detalhada dos ${disks.length} SSDs</h2><span class="sp"></span><span class="meta">Smartctl / MegaCLI -adpallinfo / -pdlist -aALL</span></div>
       <div class="tablewrap"><table class="tb">
         <thead><tr><th>Servidor</th><th>Slot lógico</th><th>Número de série</th><th>Estado</th><th>Temperatura</th><th>Vida útil restante</th><th>Horas ligado (POH)</th></tr></thead>
         <tbody>${rows}</tbody>
@@ -923,10 +923,10 @@ class StorageHealthComponent {
     ];
     return `<div class="pnl">
       <div class="ph"><h2>${Icons('shield', '', 'color:#D8D9DA')} Painel de Confiabilidade &amp; Telemetria SMART / MegaCLI</h2><span class="sp"></span>
-        <span class="pill dim">Exibindo contadores acumulados e variações do período (Δ)</span></div>
-      <div class="caps sub" style="margin-top:0">Contadores SMART de desgaste e integridade</div>
+        <span class="pill">Exibindo contadores acumulados e variações do período (Δ)</span></div>
+      <div class="sub first">Contadores SMART de desgaste e integridade</div>
       <div class="grid6">${smart.map(c => this.smartCounterTpl(c)).join('')}</div>
-      <div class="caps sub">Contadores de hardware da controladora (LSI MegaRAID SAS-2 / PERC)</div>
+      <div class="sub">Contadores de hardware da controladora (LSI MegaRAID SAS-2 / PERC)</div>
       <div class="grid3">${hw.map(c => this.hwCounterTpl(c)).join('')}</div>
     </div>`;
   }
@@ -971,7 +971,7 @@ class StorageHealthComponent {
       </tr>`;
     }).join('');
     return `<div class="pnl">
-      <div class="ph"><h2>${Icons('grid', '', 'color:#5794F2')} Volumes Virtuais (RAID) e Políticas de Cache em Execução</h2><span class="sp"></span><span class="mono dim">MegaCLI -LDInfo -Lall -aALL</span></div>
+      <div class="ph"><h2>${Icons('grid', '', 'color:#5794F2')} Volumes Virtuais (RAID) e Políticas de Cache em Execução</h2><span class="sp"></span><span class="meta">MegaCLI -LDInfo -Lall -aALL</span></div>
       <div class="tablewrap"><table class="tb">
         <thead><tr><th>Servidor</th><th>Volume virtual</th><th>Nível RAID</th><th>Capacidade</th><th>Estado operacional</th><th>Bad blocks</th><th>Cache padrão</th><th>Cache atual efetivo</th></tr></thead>
         <tbody>${rows}</tbody>
@@ -997,7 +997,7 @@ class StorageHealthComponent {
       <div class="grid2">${bbus.map(b => this.bbuCardTpl(b)).join('')}</div>
       <div class="grid2" style="margin-top:10px">
         <div>
-          <div class="ph" style="margin-bottom:4px"><h3>Carga da Bateria ao Longo do Tempo (%)</h3><span class="sp"></span><span class="mono dim3" style="font-size:10px">Zabbix · BBU: Carga</span></div>
+          <div class="ph sm"><h3>Carga da Bateria ao Longo do Tempo (%)</h3><span class="sp"></span><span class="meta">Zabbix · BBU: Carga</span></div>
           ${this.chartTpl({
             id: 'bbu-charge', series: charge, yMin: 0, yMax: 100, ticks: [0, th.bbuChargeCrit, th.bbuChargeWarn, 100], unit: '%', h: 150,
             status: v => (v < th.bbuChargeCrit ? COLORS.crit : v < th.bbuChargeWarn ? COLORS.warn : COLORS.ok),
@@ -1005,7 +1005,7 @@ class StorageHealthComponent {
           })}
         </div>
         <div>
-          <div class="ph" style="margin-bottom:4px"><h3>Temperatura das Baterias BBU (°C)</h3><span class="sp"></span><span class="mono dim3" style="font-size:10px">Zabbix · BBU: Temperatura</span></div>
+          <div class="ph sm"><h3>Temperatura das Baterias BBU (°C)</h3><span class="sp"></span><span class="meta">Zabbix · BBU: Temperatura</span></div>
           ${this.chartTpl({
             id: 'bbu-temp', series: temp, yMin: tMin, yMax: tMax, step: 10, unit: '°C', h: 150,
             status: v => (v >= th.bbuTempCrit ? COLORS.crit : v >= th.bbuTempWarn ? COLORS.warn : COLORS.ok),
@@ -1064,7 +1064,7 @@ class StorageHealthComponent {
       </tr>`;
     }).join('') : '<tr><td colspan="5" class="empty"><span class="c-ok">✓ Nenhum problema de storage ativo para os hosts selecionados</span></td></tr>';
     return `<div class="pnl">
-      <div class="ph"><h2>${Icons('bell', '', 'color:#F2495C')} Problemas Ativos no Zabbix (Triggers Disparadas)</h2><span class="sp"></span><span class="mono dim">${probs.length} problema(s) · ${esc(this.config.zabbixLabel)}</span></div>
+      <div class="ph"><h2>${Icons('bell', '', 'color:#F2495C')} Problemas Ativos no Zabbix (Triggers Disparadas)</h2><span class="sp"></span><span class="meta">${probs.length} problema(s) · ${esc(this.config.zabbixLabel)}</span></div>
       <div class="tablewrap"><table class="tb">
         <thead><tr><th>Severidade</th><th>Host</th><th>Componente</th><th>Descrição do problema</th><th>Idade</th></tr></thead>
         <tbody>${rows}</tbody>
@@ -1092,6 +1092,16 @@ class StorageHealthComponent {
 // Bootstrap — HTML graphics chama onRender a cada atualização de dados/tamanho.
 // O estado de filtros fica no htmlNode para sobreviver entre renders.
 // -----------------------------------------------------------------------------
+// Fontes: o Grafana já carrega Inter e Roboto Mono; o link abaixo é só fallback
+// (@font-face não funciona dentro do Shadow DOM, por isso vai no <head>).
+if (!document.getElementById('sh-fonts')) {
+  const link = document.createElement('link');
+  link.id = 'sh-fonts';
+  link.rel = 'stylesheet';
+  link.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500;600;700&display=swap';
+  document.head.appendChild(link);
+}
+
 if (htmlNode.getElementById('sh-root')) {
   const state = htmlNode.__shState || (htmlNode.__shState = { hosts: null, disk: 'all' });
   new StorageHealthComponent(htmlNode, state).ngOnChanges({
